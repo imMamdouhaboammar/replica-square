@@ -1,0 +1,9 @@
+feature,area,priority,original,clone,notes
+Create Event Button,Main Dashboard / Landing,must,yes,no,Extracted from recon reconnaissance
+Upcoming Schedule List,Main Dashboard / Landing,must,yes,no,Extracted from recon reconnaissance
+Share Link Trigger,Main Dashboard / Landing,must,yes,no,Extracted from recon reconnaissance
+Date Picker,Public Booking Calendar,must,yes,no,Extracted from recon reconnaissance
+Time Slot Grid,Public Booking Calendar,must,yes,no,Extracted from recon reconnaissance
+Guest Form Input,Public Booking Calendar,must,yes,no,Extracted from recon reconnaissance
+Confirm Booking CTA,Public Booking Calendar,must,yes,no,Extracted from recon reconnaissance
+Complete Guest Booking Journey,Core User Flow,must,yes,no,Primary end-to-end journey
