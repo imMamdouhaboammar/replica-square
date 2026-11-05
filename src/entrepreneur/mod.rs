@@ -1,7 +1,7 @@
 use crate::types::FeedbackTheme;
 use anyhow::{Context, Result};
 use chrono::{Duration, NaiveDate, Utc};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fs::File;
 use std::path::Path;
@@ -13,6 +13,18 @@ pub struct RawReview {
     pub date: Option<String>,
     pub rating: Option<f64>,
     pub text: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OpportunityItem {
+    pub rank: usize,
+    pub theme_id: String,
+    pub title: String,
+    pub dissatisfaction_score: f64,
+    pub effort_size: String,
+    pub effort_cost: f64,
+    pub opportunity_roi: f64,
+    pub counter_strategy: String,
 }
 
 pub struct EntrepreneurEngine;
@@ -127,6 +139,43 @@ impl EntrepreneurEngine {
         Ok(theme_results)
     }
 
+    /// Calculate Bayesian Opportunity ROI Matrix: (Pain Score * 10.0) / Effort Cost
+    pub fn calculate_opportunity_matrix(themes: &[FeedbackTheme]) -> Vec<OpportunityItem> {
+        let mut items = Vec::new();
+
+        for t in themes {
+            // Assign heuristic effort size based on theme complexity
+            let (size, cost) = match t.theme_id.as_str() {
+                "pricing" => ("S", 1.0),
+                "privacy" | "support" => ("M", 2.0),
+                "performance" => ("L", 4.0),
+                "sync_reliability" | "integration" => ("XL", 6.0),
+                _ => ("M", 2.5),
+            };
+
+            let roi = (t.dissatisfaction_score * 10.0 / cost * 100.0).round() / 100.0;
+
+            items.push(OpportunityItem {
+                rank: 0,
+                theme_id: t.theme_id.clone(),
+                title: t.title.clone(),
+                dissatisfaction_score: t.dissatisfaction_score,
+                effort_size: size.to_string(),
+                effort_cost: cost,
+                opportunity_roi: roi,
+                counter_strategy: t.recommended_feature_counter.clone(),
+            });
+        }
+
+        // Sort descending by ROI
+        items.sort_by(|a, b| b.opportunity_roi.partial_cmp(&a.opportunity_roi).unwrap());
+        for (i, it) in items.iter_mut().enumerate() {
+            it.rank = i + 1;
+        }
+
+        items
+    }
+
     /// Render Entrepreneur Markdown
     pub fn render_markdown(themes: &[FeedbackTheme]) -> String {
         let mut md = String::new();
@@ -146,6 +195,19 @@ impl EntrepreneurEngine {
             ));
         }
         md.push_str("\n");
+
+        // Opportunity ROI Matrix
+        let opps = Self::calculate_opportunity_matrix(themes);
+        md.push_str("## 🎯 Day-1 Opportunity Matrix (ROI-Ranked Counter-Features)\n\n");
+        md.push_str("| Rank | Advantage Feature / Theme | Pain Score | Effort | Opportunity ROI | Counter-Action |\n");
+        md.push_str("|:---:|:---|:---:|:---:|:---:|:---|\n");
+        for o in &opps {
+            md.push_str(&format!(
+                "| #{} | **{}** | `{:.2}` | `{}` ({:.1}d) | **{:.2}** | {} |\n",
+                o.rank, o.title, o.dissatisfaction_score, o.effort_size, o.effort_cost, o.opportunity_roi, o.counter_strategy
+            ));
+        }
+        md.push('\n');
 
         md.push_str("## Detailed Evidence Breakdown\n\n");
         for t in themes {

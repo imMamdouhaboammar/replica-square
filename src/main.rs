@@ -3,10 +3,13 @@ mod architect;
 mod brand;
 mod design;
 mod diff;
+mod e2e;
 mod entrepreneur;
 mod handoff;
+mod har;
 mod launch;
 mod mcp;
+mod mock;
 mod neural;
 mod orchestrator;
 mod recon;
@@ -139,6 +142,38 @@ enum Commands {
         listing_path: PathBuf,
     },
 
+    /// Parse HAR network capture and infer API endpoints, auth, and payload schemas
+    Har {
+        /// Path to .har network capture file
+        path: PathBuf,
+
+        /// Output directory for inferred API specs and evidence
+        #[arg(short, long, default_value = "replica")]
+        out: PathBuf,
+    },
+
+    /// Run or export autonomous HTTP mock server based on synthesized API contracts
+    Mock {
+        /// Local TCP port for embedded mock server
+        #[arg(short, long, default_value = "3000")]
+        port: u16,
+
+        /// Export standalone Bun/TypeScript mock server without starting listener
+        #[arg(short, long)]
+        export_only: bool,
+    },
+
+    /// Generate automated Playwright E2E and Axe-Core accessibility test specs
+    TestGen {
+        /// Target base URL for test runner
+        #[arg(short, long, default_value = "http://localhost:3000")]
+        base_url: String,
+
+        /// Output file path for Playwright test spec
+        #[arg(short, long, default_value = "e2e/flows.spec.ts")]
+        out: PathBuf,
+    },
+
     /// Start Model Context Protocol (MCP) server over stdio
     Mcp,
 }
@@ -246,6 +281,55 @@ async fn main() -> anyhow::Result<()> {
                 eprintln!("🔴 Store listing audit failed with {} errors!", audit.errors.len());
                 std::process::exit(1);
             }
+        }
+        Commands::Har { path, out } => {
+            std::fs::create_dir_all(&out)?;
+            let report = har::HarFlowEngine::parse_har_file(&path)?;
+            let md = har::HarFlowEngine::render_markdown(&report);
+            let json = serde_json::to_string_pretty(&report)?;
+            std::fs::write(out.join("har-catalog.md"), md)?;
+            std::fs::write(out.join("har-report.json"), json)?;
+            println!("🌐 Inferred {} API endpoints from {} network entries", report.endpoints.len(), report.total_entries);
+            println!("✅ Reports written to {}/har-catalog.md and har-report.json", out.display());
+        }
+        Commands::Mock { port, export_only } => {
+            let recon_path = std::path::Path::new("replica/recon-map.json");
+            let routes = if recon_path.exists() {
+                let data = std::fs::read_to_string(recon_path)?;
+                if let Ok(map) = serde_json::from_str::<types::ReconMap>(&data) {
+                    let plan = architect::ArchitectEngine::plan_from_recon(&map);
+                    plan.routes
+                } else {
+                    vec![]
+                }
+            } else {
+                vec![]
+            };
+
+            let out_ts = std::path::Path::new("replica/mock-server.ts");
+            std::fs::create_dir_all("replica")?;
+            mock::MockEngine::export_bun_mock_server(&routes, out_ts, port)?;
+            println!("📦 Exported standalone Bun mock server to {}", out_ts.display());
+
+            if !export_only {
+                mock::MockEngine::run_embedded_server(routes, port).await?;
+            }
+        }
+        Commands::TestGen { base_url, out } => {
+            let recon_path = std::path::Path::new("replica/recon-map.json");
+            let (flows, screens) = if recon_path.exists() {
+                let data = std::fs::read_to_string(recon_path)?;
+                if let Ok(map) = serde_json::from_str::<types::ReconMap>(&data) {
+                    (map.flows, map.screens)
+                } else {
+                    (vec![], vec![])
+                }
+            } else {
+                (vec![], vec![])
+            };
+
+            e2e::E2eGenerator::write_spec_file(&flows, &screens, &base_url, &out)?;
+            println!("🧪 Generated Playwright E2E and Axe-Core accessibility spec: {}", out.display());
         }
         Commands::Mcp => {
             eprintln!("Starting Replica Agent Model Context Protocol (MCP) server over stdio...");

@@ -184,3 +184,90 @@ fn test_orchestrator_routed_execution() {
     // Clean up
     let _ = fs::remove_dir_all(&temp_ws);
 }
+
+#[test]
+fn test_elite_breakthrough_engines() {
+    let pid = std::process::id();
+    let temp_ws = PathBuf::from(format!("/tmp/test_elite_breakthroughs_{}", pid));
+    let _ = fs::remove_dir_all(&temp_ws);
+    fs::create_dir_all(&temp_ws).unwrap();
+
+    // 1. Test OpportunityMatrix
+    let themes = vec![
+        replica_square::types::FeedbackTheme {
+            theme_id: "pricing".to_string(),
+            title: "Too expensive".to_string(),
+            keywords: vec!["price".to_string()],
+            total_mentions: 42,
+            dissatisfaction_score: 8.5,
+            sample_quotes: vec!["Hate paywall".to_string()],
+            sources: vec!["G2".to_string()],
+            recommended_feature_counter: "Flat fee tier".to_string(),
+        },
+        replica_square::types::FeedbackTheme {
+            theme_id: "sync_reliability".to_string(),
+            title: "Double booking sync errors".to_string(),
+            keywords: vec!["sync".to_string()],
+            total_mentions: 55,
+            dissatisfaction_score: 9.2,
+            sample_quotes: vec!["Lost client due to double booking".to_string()],
+            sources: vec!["Trustpilot".to_string()],
+            recommended_feature_counter: "Serializable tx locks".to_string(),
+        },
+    ];
+
+    let opps = replica_square::entrepreneur::EntrepreneurEngine::calculate_opportunity_matrix(&themes);
+    assert_eq!(opps.len(), 2);
+    // Pricing: S effort (cost 1.0) -> ROI = 8.5 * 10 / 1.0 = 85.0
+    // Sync: XL effort (cost 6.0) -> ROI = 9.2 * 10 / 6.0 = 15.33
+    assert_eq!(opps[0].theme_id, "pricing");
+    assert!(opps[0].opportunity_roi > opps[1].opportunity_roi);
+
+    // 2. Test MockEngine Bun Export
+    let routes = vec![replica_square::types::ApiRoute {
+        method: "GET".to_string(),
+        path: "/api/v1/events".to_string(),
+        description: "List events".to_string(),
+        auth_required: true,
+        input_schema: "{}".to_string(),
+        output_schema: "{\"events\":[]}".to_string(),
+        flow_id: "F01".to_string(),
+    }];
+
+    let mock_out = temp_ws.join("mock-server.ts");
+    replica_square::mock::MockEngine::export_bun_mock_server(&routes, &mock_out, 3000)
+        .expect("Export Bun mock server failed");
+    assert!(mock_out.exists());
+    let mock_content = fs::read_to_string(&mock_out).unwrap();
+    assert!(mock_content.contains("Bun.serve"));
+    assert!(mock_content.contains("/api/v1/events"));
+
+    // 3. Test E2E Spec Writer
+    let flows = vec![replica_square::types::ReconFlow {
+        flow_id: "F-BOOK".to_string(),
+        name: "Book Meeting".to_string(),
+        step_screens: vec!["S-CALENDAR".to_string()],
+        happy_path: vec!["Pick date".to_string(), "Submit details".to_string()],
+        edge_cases: vec!["Double submit".to_string()],
+    }];
+    let screens = vec![replica_square::types::ReconScreen {
+        screen_id: "S-CALENDAR".to_string(),
+        title: "Calendar View".to_string(),
+        route_path: "/calendar".to_string(),
+        viewport: "1440x900".to_string(),
+        interactive_elements: vec!["Slot button".to_string()],
+        network_calls: vec!["POST /api/v1/bookings".to_string()],
+        states: vec!["ready".to_string()],
+    }];
+
+    let spec_out = temp_ws.join("e2e").join("flows.spec.ts");
+    replica_square::e2e::E2eGenerator::write_spec_file(&flows, &screens, "http://localhost:3000", &spec_out)
+        .expect("Write spec failed");
+    assert!(spec_out.exists());
+    let spec_content = fs::read_to_string(&spec_out).unwrap();
+    assert!(spec_content.contains("AxeBuilder"));
+    assert!(spec_content.contains("Flow: Book Meeting (F-BOOK)"));
+
+    // Clean up
+    let _ = fs::remove_dir_all(&temp_ws);
+}

@@ -18,13 +18,18 @@
     "transport": "stdio",
     "command": "replica-square mcp",
     "tools": [
+      "replica_route",
+      "replica_orchestrate",
       "replica_recon",
+      "replica_har",
       "replica_entrepreneur",
       "replica_architect",
       "replica_design",
       "replica_diff",
       "replica_sweep",
-      "replica_launch"
+      "replica_launch",
+      "replica_mock",
+      "replica_test_gen"
     ]
   },
   "skills": ["replica-square"],
