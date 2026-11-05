@@ -28,21 +28,21 @@ metadata:
 
 # Replica-Square: Fully Agentic Clean-Room Reconstruction Engine
 
-> Point it at any app. It studies the original with verified evidence, plans a clean-room rebuild, checks every deliverable against deterministic gates, and clears all legal and store-listing preflight checks — autonomously.
+> Point it at any app or natural language prompt. It dynamically routes intent, harvests verifiable evidence, plans a clean-room rebuild via autonomous tool-agents, propagates signals across a neural graph, and auto-handoffs across gates — autonomously.
 
 ---
 
-## Execution Invariant
+## Dynamic Agentic Routing & Auto-Handoff Invariant
 
-$$\text{Target} \xrightarrow{\text{SHA-256 Evidence}} \text{Recon Map} \xrightarrow{\text{Architect + Design}} \text{Build Spec} \xrightarrow{\text{Diff Gate}} \text{Parity \ge 80\%} \xrightarrow{\text{Sweep Gate}} \text{Clean Room} \xrightarrow{\text{Launch Audit}} \text{Shipped}$$
+$$\text{Intent (Any Prompt)} \xrightarrow{\text{Dynamic Router}} \text{Execution DAG} \xrightarrow{\text{Tool-Agents}} \text{Neural Signal Bus} \xrightarrow{\text{Auto-Handoff}} \text{Production Release}$$
 
 ---
 
-## The Seven Tools (Agents)
+## The Seven Tool-Agents
 
-| Tool | CLI | Playbook | What it does |
+| Agent | CLI | Playbook | What it does |
 |:---|:---|:---|:---|
-| **recon** | `replica-square recon` | [`playbooks/recon.md`](playbooks/recon.md) | Maps screens, flows, data model, and evidence ledger |
+| **recon** | `replica-square recon` | [`playbooks/recon.md`](playbooks/recon.md) | Maps screens, flows, data model, and cryptographic evidence ledger |
 | **entrepreneur** | `replica-square entrepreneur` | [`playbooks/entrepreneur.md`](playbooks/entrepreneur.md) | Mines user pain, ranks themes, formulates counter-features |
 | **architect** | `replica-square architect` | [`playbooks/architect.md`](playbooks/architect.md) | Synthesizes PostgreSQL schema, API contracts, build order |
 | **design** | `replica-square design` | [`playbooks/design.md`](playbooks/design.md) | WCAG 2.2 color validation, Tailwind token export |
@@ -52,45 +52,28 @@ $$\text{Target} \xrightarrow{\text{SHA-256 Evidence}} \text{Recon Map} \xrightar
 
 ---
 
-## Agentic Pipeline
+## Neural Connections & Auto-Handoff Architecture
 
 ```mermaid
 flowchart TD
-    subgraph INPUT ["Input Surface"]
-        URL["Web URL / App Store Link"]
-        BIN["Binary / APK / ASAR"]
-        REV["User Reviews CSV"]
+    PROMPT["User Prompt (Natural Language)"] --> ROUTER["Dynamic Agentic Router<br/>(RegexSet + Parameter Extraction)"]
+    ROUTER --> DAG["Directed Acyclic Graph (DAG)"]
+
+    subgraph ENGINE ["Auto-Handoff Engine & Neural Bus"]
+        DAG --> RECON["ReconAgent<br/>Evidence Harvester"]
+        RECON -->|"Complete (⚠️ passthrough)"| ENTRE["EntrepreneurAgent<br/>Market Pain Miner"]
+        RECON -->|"Complete (Strict Gate)"| ARCH["ArchitectAgent<br/>PostgreSQL & API Spec"]
+        ARCH -->|"Complete"| DESIGN["DesignAgent<br/>WCAG Token Auditor"]
+        ARCH -->|"Complete"| DIFF["DiffAgent<br/>Parity Scorer"]
+        DESIGN -->|"Complete (⚠️ passthrough)"| SWEEP["SweepAgent<br/>Clean-Room Clearance"]
+        DIFF -->|"Complete (⚠️ passthrough)"| SWEEP
+        SWEEP -->|"Complete (Strict Gate)"| LAUNCH["LaunchAgent<br/>Store Listing Linter"]
+
+        CIRCUIT["⚡ Fable Circuit Breaker (Halt if failures ≥ 2)"]
     end
 
-    subgraph STAGE1 ["Stage 1 · Study"]
-        RECON["recon<br/>Screens · Flows · Evidence SHA-256"]
-        ENTRE["entrepreneur<br/>Pain Themes · Counter-Features"]
-    end
-
-    subgraph STAGE2 ["Stage 2 · Plan"]
-        ARCH["architect<br/>PostgreSQL DDL + API Contracts"]
-        DESIGN["design<br/>WCAG 2.2 Tokens + Tailwind"]
-    end
-
-    subgraph STAGE3 ["Stage 3 · Verify"]
-        DIFF["diff<br/>Parity ≥ 80%?"]
-        SWEEP["sweep<br/>Zero Brand Leaks?"]
-        LAUNCH["launch<br/>Store Metadata Clean?"]
-    end
-
-    OUT["✅ Production-Ready Deliverable"]
-
-    INPUT --> STAGE1
-    STAGE1 --> STAGE2
-    STAGE2 --> DIFF
-    DIFF -->|"< 80% → backlog"| ARCH
-    DIFF -->|"≥ 80% ✓"| SWEEP
-    SWEEP -->|"violations found"| FIX["Purge & Retry"]
-    FIX --> SWEEP
-    SWEEP -->|"clean ✓"| LAUNCH
-    LAUNCH -->|"errors found"| FIXL["Fix Metadata"]
-    FIXL --> LAUNCH
-    LAUNCH -->|"passed ✓"| OUT
+    LAUNCH --> OUT["✅ Production-Ready Deliverable"]
+    ENGINE -.->|"Live State & Signals"| TRACE["replica/handoff-trace.md"]
 ```
 
 ---
@@ -105,12 +88,21 @@ flowchart TD
 
 ## Quick Start
 
-### Full Autonomous Pipeline
+### 1. Dynamic Routing & Autonomous Execution
+```bash
+# Analyze prompt and inspect execution DAG
+replica-square route "Clone Calendly and check parity at 85%"
+
+# Run autonomous pipeline with dynamic routing and auto-handoff
+replica-square run --prompt "Build a full clean-room clone of Calendly"
+```
+
+### 2. Full Standard Pipeline
 ```bash
 replica-square run --target "Calendly" --url https://calendly.com --fail-under 80
 ```
 
-### Individual Tool Calls
+### 3. Individual Tool Calls
 ```bash
 replica-square recon https://app.example.com --out replica/
 replica-square entrepreneur replica/reviews.csv
@@ -121,26 +113,15 @@ replica-square sweep . --avoid "Competitor" --domains competitor.com --colors "#
 replica-square launch replica/listing.json
 ```
 
-### As MCP Server (for AI agents)
+### 4. As MCP Server (for AI Agents)
 ```bash
 replica-square mcp
 ```
 
-```json
-{
-  "mcpServers": {
-    "replica-square": {
-      "command": "/path/to/replica-square",
-      "args": ["mcp"]
-    }
-  }
-}
-```
-
-### Install via npx skills
-```bash
-npx skills add "https://github.com/imMamdouhaboammar/replica-square"
-```
+Tools exposed over JSON-RPC 2.0 stdio:
+- `replica_route`: Analyzes natural language prompt and returns DAG
+- `replica_orchestrate`: Executes dynamic multi-agent DAG with neural signal bus
+- `replica_recon`, `replica_architect`, `replica_design`, `replica_entrepreneur`, `replica_diff`, `replica_brand_sweep`, `replica_launch_audit`
 
 ---
 
@@ -148,6 +129,12 @@ npx skills add "https://github.com/imMamdouhaboammar/replica-square"
 
 | Path | Contents |
 |:---|:---|
+| [`references/neural-connections.md`](references/neural-connections.md) | Neural topology, signal protocol, and warning passthroughs |
+| [`references/auto-handoff.md`](references/auto-handoff.md) | Auto-handoff engine, artifact gates, and circuit breaker |
+| [`references/pipeline-state.md`](references/pipeline-state.md) | SOT state machine and artifact naming |
+| [`references/evidence-contract.md`](references/evidence-contract.md) | Evidence schema, SHA-256 anchoring, REA compliance |
+| [`references/parity-formula.md`](references/parity-formula.md) | 80/20 parity formula derivation and weighting |
+| [`references/legal-boundaries.md`](references/legal-boundaries.md) | Clean-room legal scope and skip-row rules |
 | [`playbooks/recon.md`](playbooks/recon.md) | Recon tool — step-by-step agent instructions |
 | [`playbooks/entrepreneur.md`](playbooks/entrepreneur.md) | Entrepreneur tool — review mining and counter-feature synthesis |
 | [`playbooks/architect.md`](playbooks/architect.md) | Architect tool — schema DDL and API contract generation |
@@ -155,8 +142,4 @@ npx skills add "https://github.com/imMamdouhaboammar/replica-square"
 | [`playbooks/diff.md`](playbooks/diff.md) | Diff tool — parity scoring methodology |
 | [`playbooks/sweep.md`](playbooks/sweep.md) | Sweep tool — trademark clean-room certification |
 | [`playbooks/launch.md`](playbooks/launch.md) | Launch tool — store metadata compliance |
-| [`references/pipeline-state.md`](references/pipeline-state.md) | SOT state machine and artifact naming |
-| [`references/evidence-contract.md`](references/evidence-contract.md) | Evidence schema, SHA-256 anchoring, REA compliance |
-| [`references/parity-formula.md`](references/parity-formula.md) | 80/20 parity formula derivation and weighting |
-| [`references/legal-boundaries.md`](references/legal-boundaries.md) | Clean-room legal scope and skip-row rules |
 | [`evals/triggers.md`](evals/triggers.md) | Positive, negative, and pressure-test cases |

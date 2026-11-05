@@ -1,10 +1,13 @@
+use crate::agent::AgentContext;
 use crate::architect::ArchitectEngine;
 use crate::brand::BrandEngine;
 use crate::design::DesignEngine;
 use crate::diff::DiffEngine;
 use crate::entrepreneur::EntrepreneurEngine;
+use crate::handoff::{HandoffEngine, PipelineResult};
 use crate::launch::{LaunchEngine, StoreMetadata};
 use crate::recon::ReconEngine;
+use crate::router::{DynamicRouter, RouteResult};
 use crate::types::{ContrastPair, DesignTokens, ReconFlow, ReconScreen};
 use anyhow::{Context, Result};
 use std::collections::HashMap;
@@ -14,6 +17,43 @@ use std::path::Path;
 pub struct Orchestrator;
 
 impl Orchestrator {
+    /// Dynamically route user prompt, construct DAG, and execute via tool-agents with auto-handoff
+    pub fn run_routed<P: AsRef<Path>>(
+        prompt: &str,
+        workspace_dir: P,
+    ) -> Result<PipelineResult> {
+        let ws = workspace_dir.as_ref();
+        let router = DynamicRouter::new();
+        let route = router.route(prompt);
+
+        println!("{}", route.to_markdown());
+
+        if route.dag.is_empty() {
+            anyhow::bail!("No executable DAG found for prompt: '{}'", prompt);
+        }
+
+        let target_name = route.params.get("target")
+            .cloned()
+            .unwrap_or_else(|| "TargetApp".to_string());
+        let target_url = route.params.get("url").cloned();
+        let fail_under: f64 = route.params.get("fail_under")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(80.0);
+
+        let mut ctx = AgentContext::new(&target_name, ws);
+        ctx.target_url = target_url;
+        ctx.fail_under_parity = fail_under;
+
+        let result = HandoffEngine::execute_dag(&route.dag, &ctx)?;
+        Ok(result)
+    }
+
+    /// Explain and route a prompt without executing
+    pub fn route_only(prompt: &str) -> RouteResult {
+        let router = DynamicRouter::new();
+        router.route(prompt)
+    }
+
     /// Run complete autonomous replica agent lifecycle
     pub fn run_full_pipeline<P: AsRef<Path>>(
         target_name: &str,

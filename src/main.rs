@@ -1,12 +1,16 @@
+mod agent;
 mod architect;
 mod brand;
 mod design;
 mod diff;
 mod entrepreneur;
+mod handoff;
 mod launch;
 mod mcp;
+mod neural;
 mod orchestrator;
 mod recon;
+mod router;
 mod types;
 
 use clap::{Parser, Subcommand};
@@ -26,8 +30,22 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Analyze natural language prompt and generate dynamic execution DAG
+    Route {
+        /// User request or intention in natural language
+        prompt: String,
+
+        /// Output format as JSON instead of Markdown
+        #[arg(long)]
+        json: bool,
+    },
+
     /// Run complete autonomous end-to-end reconstruction pipeline
     Run {
+        /// Optional natural language prompt to dynamically route and execute
+        #[arg(short, long)]
+        prompt: Option<String>,
+
         /// Name of the target application to reverse engineer and clone
         #[arg(short, long, default_value = "TargetApp")]
         target: String,
@@ -130,8 +148,20 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Run { target, url, workspace, fail_under } => {
-            orchestrator::Orchestrator::run_full_pipeline(&target, url, workspace, fail_under)?;
+        Commands::Route { prompt, json } => {
+            let res = orchestrator::Orchestrator::route_only(&prompt);
+            if json {
+                println!("{}", serde_json::to_string_pretty(&res)?);
+            } else {
+                println!("{}", res.to_markdown());
+            }
+        }
+        Commands::Run { prompt, target, url, workspace, fail_under } => {
+            if let Some(p) = prompt {
+                orchestrator::Orchestrator::run_routed(&p, workspace)?;
+            } else {
+                orchestrator::Orchestrator::run_full_pipeline(&target, url, workspace, fail_under)?;
+            }
         }
         Commands::Recon { target, out } => {
             std::fs::create_dir_all(&out)?;

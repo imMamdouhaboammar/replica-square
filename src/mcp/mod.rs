@@ -62,8 +62,8 @@ impl McpServer {
                         "tools": {}
                     },
                     "serverInfo": {
-                        "name": "replica-agent",
-                        "version": "0.1.0"
+                        "name": "replica-square",
+                        "version": "2.0.0"
                     }
                 })),
                 error: None,
@@ -73,6 +73,29 @@ impl McpServer {
                 id: req.id,
                 result: Some(json!({
                     "tools": [
+                        {
+                            "name": "replica_route",
+                            "description": "Analyzes natural language prompt to classify phase intent and construct execution DAG",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "prompt": { "type": "string" }
+                                },
+                                "required": ["prompt"]
+                            }
+                        },
+                        {
+                            "name": "replica_orchestrate",
+                            "description": "Executes dynamic multi-agent DAG with neural signal bus and auto-handoff mechanism",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "prompt": { "type": "string" },
+                                    "workspace_path": { "type": "string" }
+                                },
+                                "required": ["prompt"]
+                            }
+                        },
                         {
                             "name": "replica_recon",
                             "description": "Reverse engineers any target application into screens, flows, and verifiable evidence ledger",
@@ -166,6 +189,35 @@ impl McpServer {
                 let args = params.get("arguments").cloned().unwrap_or(json!({}));
 
                 let result = match name {
+                    "replica_route" => {
+                        let prompt = args.get("prompt").and_then(|v| v.as_str()).unwrap_or("");
+                        let route = crate::router::DynamicRouter::new().route(prompt);
+                        json!({
+                            "status": "success",
+                            "intent": route.intent,
+                            "dag": route.dag,
+                            "params": route.params,
+                            "explanation": route.explanation,
+                            "markdown": route.to_markdown()
+                        })
+                    }
+                    "replica_orchestrate" => {
+                        let prompt = args.get("prompt").and_then(|v| v.as_str()).unwrap_or("");
+                        let ws = args.get("workspace_path").and_then(|v| v.as_str()).unwrap_or(".");
+                        match crate::orchestrator::Orchestrator::run_routed(prompt, ws) {
+                            Ok(res) => json!({
+                                "status": "success",
+                                "pipeline_success": res.success,
+                                "agents_run": res.agents_run,
+                                "agents_skipped": res.agents_skipped,
+                                "agents_failed": res.agents_failed,
+                                "circuit_breaker_tripped": res.circuit_breaker_tripped,
+                                "handoffs_count": res.handoffs.len(),
+                                "neural_graph_markdown": res.final_graph_md
+                            }),
+                            Err(e) => json!({ "error": e.to_string() }),
+                        }
+                    }
                     "replica_design" => {
                         if let Ok(tokens) = serde_json::from_value::<DesignTokens>(args.get("tokens_json").cloned().unwrap_or(json!({}))) {
                             let contrast_results = DesignEngine::check_tokens(&tokens);

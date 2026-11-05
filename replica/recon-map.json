@@ -1,47 +1,23 @@
 {
-  "target_name": "Calendly",
-  "target_url": "https://calendly.com",
-  "analyzed_at": "2026-11-04T22:05:21.470697Z",
+  "target_name": "Linear",
+  "target_url": "https://linear.app",
+  "analyzed_at": "2026-11-05T03:56:53.212593Z",
   "screens": [
     {
       "screen_id": "S-HOME",
-      "title": "Main Dashboard / Landing",
+      "title": "Main Dashboard",
       "route_path": "/",
       "viewport": "1440x900",
       "interactive_elements": [
-        "Create Event Button",
-        "Upcoming Schedule List",
-        "Share Link Trigger"
+        "Create Event",
+        "Share Link"
       ],
       "network_calls": [
-        "GET /api/v1/events",
-        "GET /api/v1/user/me"
+        "GET /api/events"
       ],
       "states": [
         "empty",
-        "populated",
-        "loading"
-      ]
-    },
-    {
-      "screen_id": "S-BOOKING",
-      "title": "Public Booking Calendar",
-      "route_path": "/[user]/[slug]",
-      "viewport": "375x812 (mobile)",
-      "interactive_elements": [
-        "Date Picker",
-        "Time Slot Grid",
-        "Guest Form Input",
-        "Confirm Booking CTA"
-      ],
-      "network_calls": [
-        "GET /api/v1/availability",
-        "POST /api/v1/bookings"
-      ],
-      "states": [
-        "date_select",
-        "slot_select",
-        "confirmed"
+        "populated"
       ]
     }
   ],
@@ -50,33 +26,29 @@
       "flow_id": "F-BOOKING",
       "name": "Guest Booking Journey",
       "step_screens": [
-        "S-BOOKING",
-        "S-CONFIRMATION"
+        "S-HOME"
       ],
       "happy_path": [
-        "Guest opens public link",
-        "Selects available date and time slot",
-        "Enters name and email",
-        "Receives calendar invite & confirmation"
+        "Open link",
+        "Pick slot",
+        "Confirm"
       ],
       "edge_cases": [
-        "Slot booked simultaneously by another guest (concurrency clash)",
-        "Guest in conflicting timezone (DST calculation)"
+        "Concurrency clash"
       ]
     }
   ],
   "constraints": [
-    "Absolute zero double-booking invariant (exclusion constraint or serializable transaction)",
-    "All timestamps stored strictly in UTC with timezone offset preserved",
-    "Public forms must implement client IP rate-limiting and honeypot validation"
+    "Zero double-booking (serializable tx)",
+    "UTC-only timestamps"
   ],
   "evidence": [
     {
-      "id": "ev-b1f25086f9ed",
+      "id": "ev-6eda5b0236aa",
       "source_type": "directory_artifact",
       "uri_or_path": "./Cargo.toml",
-      "sha256_digest": "sha256:b1f25086f9ed96ffde91e2b43f7649b83609a58ffd69043de99acf4388e20751",
-      "timestamp": "2026-11-04T22:05:20.345163Z",
+      "sha256_digest": "sha256:6eda5b0236aa8c51a225c5661bc3911aaa6487b5e3ea337dcca0aece540bc29d",
+      "timestamp": "2026-11-05T03:56:53.042861Z",
       "observations": [
         "Artifact discovered: Cargo.toml"
       ]
@@ -86,7 +58,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./target/.rustc_info.json",
       "sha256_digest": "sha256:e8ecfe28ddfcc16cfa9847ff21049cd3dc050a422aece5bf13aa9ae633488a6d",
-      "timestamp": "2026-11-04T22:05:20.345453Z",
+      "timestamp": "2026-11-05T03:56:53.042990Z",
       "observations": [
         "Artifact discovered: .rustc_info.json"
       ]
@@ -96,9 +68,79 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./target/CACHEDIR.TAG",
       "sha256_digest": "sha256:6d9d1d216e0f83abc5e5662ca62c92b4f23009466b54fa27321a69acdb778bb2",
-      "timestamp": "2026-11-04T22:05:20.345741Z",
+      "timestamp": "2026-11-05T03:56:53.046103Z",
       "observations": [
         "Artifact discovered: CACHEDIR.TAG"
+      ]
+    },
+    {
+      "id": "ev-52ab6e1a243c",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./target/release/replica-square.d",
+      "sha256_digest": "sha256:52ab6e1a243ce4835424781009c012bc247ebf10845006f7199efdbd77ddb867",
+      "timestamp": "2026-11-05T03:56:53.046359Z",
+      "observations": [
+        "Artifact discovered: replica-square.d"
+      ]
+    },
+    {
+      "id": "ev-1714cf0d3eec",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./target/release/libreplica_square.d",
+      "sha256_digest": "sha256:1714cf0d3eec4ecae0de0cca27ff62b198dafa94593dde0c193599c8574b5ad5",
+      "timestamp": "2026-11-05T03:56:53.046424Z",
+      "observations": [
+        "Artifact discovered: libreplica_square.d"
+      ]
+    },
+    {
+      "id": "ev-e3b0c44298fc",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./target/release/.cargo-build-lock",
+      "sha256_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-11-05T03:56:53.046459Z",
+      "observations": [
+        "Artifact discovered: .cargo-build-lock"
+      ]
+    },
+    {
+      "id": "ev-c46a1f09ca6b",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./target/release/libreplica_square.rlib",
+      "sha256_digest": "sha256:c46a1f09ca6bec47e260fe450d170a7fc3c902aa1453d10a403e2b90ada21680",
+      "timestamp": "2026-11-05T03:56:53.063107Z",
+      "observations": [
+        "Artifact discovered: libreplica_square.rlib"
+      ]
+    },
+    {
+      "id": "ev-e3b0c44298fc",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./target/release/.cargo-lock",
+      "sha256_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-11-05T03:56:53.063275Z",
+      "observations": [
+        "Artifact discovered: .cargo-lock"
+      ]
+    },
+    {
+      "id": "ev-db667a05035f",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./target/release/replica-square",
+      "sha256_digest": "sha256:db667a05035f7a986c945d1195f06f2dad0c55dfb522db38520cc9da67386626",
+      "timestamp": "2026-11-05T03:56:53.080573Z",
+      "observations": [
+        "Artifact discovered: replica-square"
+      ]
+    },
+    {
+      "id": "ev-e3b0c44298fc",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./target/release/.cargo-artifact-lock",
+      "sha256_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-11-05T03:56:53.080673Z",
+      "observations": [
+        "Artifact discovered: .cargo-artifact-lock"
       ]
     },
     {
@@ -106,7 +148,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./target/debug/replica-agent.d",
       "sha256_digest": "sha256:783008cae0a69fa2e8847703bd5f2a99a8bcbe95d8498b914edbe8ee49cfb267",
-      "timestamp": "2026-11-04T22:05:20.345935Z",
+      "timestamp": "2026-11-05T03:56:53.081249Z",
       "observations": [
         "Artifact discovered: replica-agent.d"
       ]
@@ -116,7 +158,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./target/debug/.cargo-build-lock",
       "sha256_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "timestamp": "2026-11-04T22:05:20.346009Z",
+      "timestamp": "2026-11-05T03:56:53.081347Z",
       "observations": [
         "Artifact discovered: .cargo-build-lock"
       ]
@@ -126,9 +168,19 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./target/debug/.cargo-lock",
       "sha256_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "timestamp": "2026-11-04T22:05:20.346050Z",
+      "timestamp": "2026-11-05T03:56:53.081380Z",
       "observations": [
         "Artifact discovered: .cargo-lock"
+      ]
+    },
+    {
+      "id": "ev-82438dcec5f3",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./target/debug/replica-square",
+      "sha256_digest": "sha256:82438dcec5f371f5519d64165437ebbe4851ae0d4ea3ea20b4f6cb3ec66ab454",
+      "timestamp": "2026-11-05T03:56:53.141166Z",
+      "observations": [
+        "Artifact discovered: replica-square"
       ]
     },
     {
@@ -136,39 +188,239 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./target/debug/.cargo-artifact-lock",
       "sha256_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "timestamp": "2026-11-04T22:05:20.346177Z",
+      "timestamp": "2026-11-05T03:56:53.141225Z",
       "observations": [
         "Artifact discovered: .cargo-artifact-lock"
       ]
     },
     {
-      "id": "ev-02e6fc12c5d3",
+      "id": "ev-24fcd2a0ee90",
       "source_type": "directory_artifact",
       "uri_or_path": "./target/debug/replica-agent",
-      "sha256_digest": "sha256:02e6fc12c5d3e89106f7ecef3b24c4c48b0ff381956373632323ce747ffb1cd3",
-      "timestamp": "2026-11-04T22:05:21.455912Z",
+      "sha256_digest": "sha256:24fcd2a0ee90f2721f32b9f6d045cb6c5e3e58d7c3e985bfd022266b16d6f380",
+      "timestamp": "2026-11-05T03:56:53.201183Z",
       "observations": [
         "Artifact discovered: replica-agent"
       ]
     },
     {
-      "id": "ev-f6597341a5f9",
+      "id": "ev-5b5c749c639a",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./tests/engine_tests.rs",
+      "sha256_digest": "sha256:5b5c749c639abe27921bfd5515a56a46b00366aaa2019d0ee085140f1816afe0",
+      "timestamp": "2026-11-05T03:56:53.201520Z",
+      "observations": [
+        "Artifact discovered: engine_tests.rs"
+      ]
+    },
+    {
+      "id": "ev-8d839432c79c",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./tests/agentic_pipeline_tests.rs",
+      "sha256_digest": "sha256:8d839432c79c9002e9701b606ece60d172755d519dac35f71ac8b18af5302fd5",
+      "timestamp": "2026-11-05T03:56:53.201712Z",
+      "observations": [
+        "Artifact discovered: agentic_pipeline_tests.rs"
+      ]
+    },
+    {
+      "id": "ev-87a724b17404",
       "source_type": "directory_artifact",
       "uri_or_path": "./Cargo.lock",
-      "sha256_digest": "sha256:f6597341a5f9597825544d39dfdd3f75f74ab7cfd88a63d880b5076fc638f438",
-      "timestamp": "2026-11-04T22:05:21.457768Z",
+      "sha256_digest": "sha256:87a724b1740460560f8b27fb37e7c5309a35fd5c56ae23881a750b7aff97137a",
+      "timestamp": "2026-11-05T03:56:53.201842Z",
       "observations": [
         "Artifact discovered: Cargo.lock"
       ]
     },
     {
-      "id": "ev-44c92e3a70ad",
+      "id": "ev-f44a79f0dc8d",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./docs/solutions/agentic-replica-engine-architecture.md",
+      "sha256_digest": "sha256:f44a79f0dc8da0a5d950e93f9986807711468634422a9d2f6c5604056e951215",
+      "timestamp": "2026-11-05T03:56:53.202128Z",
+      "observations": [
+        "Artifact discovered: agentic-replica-engine-architecture.md"
+      ]
+    },
+    {
+      "id": "ev-9fefd63cbc2f",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./README.md",
+      "sha256_digest": "sha256:9fefd63cbc2f185e926d9b5a858bafe69c11a3fa81e90cbeac06cc4da4b3f3e9",
+      "timestamp": "2026-11-05T03:56:53.202311Z",
+      "observations": [
+        "Artifact discovered: README.md"
+      ]
+    },
+    {
+      "id": "ev-2cdbc4093a27",
       "source_type": "directory_artifact",
       "uri_or_path": "./.gitignore",
-      "sha256_digest": "sha256:44c92e3a70ad3307b7056871c2bdb096d8bfa9373f5bf06a79bb6324a20ff2fb",
-      "timestamp": "2026-11-04T22:05:21.457819Z",
+      "sha256_digest": "sha256:2cdbc4093a27fe116463c1f9cfb53c1a919617887529ff3a7c946cde4ece7456",
+      "timestamp": "2026-11-05T03:56:53.202335Z",
       "observations": [
         "Artifact discovered: .gitignore"
+      ]
+    },
+    {
+      "id": "ev-004a2d3eefa0",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./.claude-plugin/marketplace.json",
+      "sha256_digest": "sha256:004a2d3eefa064b206a5af95d20cfc2a671b68fad662190b0590fb15a2c2ab14",
+      "timestamp": "2026-11-05T03:56:53.202518Z",
+      "observations": [
+        "Artifact discovered: marketplace.json"
+      ]
+    },
+    {
+      "id": "ev-dedefde51b81",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./.claude-plugin/plugin.json",
+      "sha256_digest": "sha256:dedefde51b8187f24f9504e0971af5670dac1fafc9abde86ab2a581b5da4f77a",
+      "timestamp": "2026-11-05T03:56:53.202718Z",
+      "observations": [
+        "Artifact discovered: plugin.json"
+      ]
+    },
+    {
+      "id": "ev-ec82d4e7f17e",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./SKILL.md",
+      "sha256_digest": "sha256:ec82d4e7f17e725ebb82c6da4c2e61cea5dbb2b46259f8041fdaf675747eb54a",
+      "timestamp": "2026-11-05T03:56:53.203403Z",
+      "observations": [
+        "Artifact discovered: SKILL.md"
+      ]
+    },
+    {
+      "id": "ev-e2adb4a18040",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./skills/replica-square/SKILL.md",
+      "sha256_digest": "sha256:e2adb4a18040809001a8c189c5ab2d283d70d17d92fedeefd0fe17aa36023de9",
+      "timestamp": "2026-11-05T03:56:53.203686Z",
+      "observations": [
+        "Artifact discovered: SKILL.md"
+      ]
+    },
+    {
+      "id": "ev-c187a95ff3fb",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/cleanroom-report.md",
+      "sha256_digest": "sha256:c187a95ff3fbc5b7044d632dc6faad161b58aceaa151b08a03b16d4608a5c28a",
+      "timestamp": "2026-11-05T03:56:53.203876Z",
+      "observations": [
+        "Artifact discovered: cleanroom-report.md"
+      ]
+    },
+    {
+      "id": "ev-65610173691e",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/architecture.md",
+      "sha256_digest": "sha256:65610173691e42076728ab057f2eb2357e810c71ce5f619b32ce57a550c6dad4",
+      "timestamp": "2026-11-05T03:56:53.204078Z",
+      "observations": [
+        "Artifact discovered: architecture.md"
+      ]
+    },
+    {
+      "id": "ev-f30dcced5eaf",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/reviews.csv",
+      "sha256_digest": "sha256:f30dcced5eaf09d905453bc99a7329cae11c278fc15fd535f41f96441705da3c",
+      "timestamp": "2026-11-05T03:56:53.204999Z",
+      "observations": [
+        "Artifact discovered: reviews.csv"
+      ]
+    },
+    {
+      "id": "ev-df453650e560",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/recon-map.json",
+      "sha256_digest": "sha256:df453650e5602434a1e84a488e0d32d0daa393f9313f3d24a8638e2f49eb63ac",
+      "timestamp": "2026-11-05T03:56:53.205207Z",
+      "observations": [
+        "Artifact discovered: recon-map.json"
+      ]
+    },
+    {
+      "id": "ev-e0385ed3ff57",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/schema.sql",
+      "sha256_digest": "sha256:e0385ed3ff57c5d96cc056e99aece7144ad5bcc04486b606e050ea5e52c08ecb",
+      "timestamp": "2026-11-05T03:56:53.205275Z",
+      "observations": [
+        "Artifact discovered: schema.sql"
+      ]
+    },
+    {
+      "id": "ev-54ef6347a995",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/recon.md",
+      "sha256_digest": "sha256:54ef6347a9955ff5035b3189484596cb1c6956a5580d8f89fca8cbf4fb241014",
+      "timestamp": "2026-11-05T03:56:53.205397Z",
+      "observations": [
+        "Artifact discovered: recon.md"
+      ]
+    },
+    {
+      "id": "ev-38b3d7bc1593",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/tailwind.tokens.js",
+      "sha256_digest": "sha256:38b3d7bc1593c15a442cab20632c53b3ca9834de71b1bf214848ddb4a5f0a04b",
+      "timestamp": "2026-11-05T03:56:53.205456Z",
+      "observations": [
+        "Artifact discovered: tailwind.tokens.js"
+      ]
+    },
+    {
+      "id": "ev-0947df934b52",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/parity.md",
+      "sha256_digest": "sha256:0947df934b52e6a3531d92cc77b3954a9eca52e7b10f89130bd0426eb0211e77",
+      "timestamp": "2026-11-05T03:56:53.205516Z",
+      "observations": [
+        "Artifact discovered: parity.md"
+      ]
+    },
+    {
+      "id": "ev-9404e007b9ae",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/listing-audit.md",
+      "sha256_digest": "sha256:9404e007b9ae14227d1bec633857eec59e783eac1e268d54e44fe28841fdae7f",
+      "timestamp": "2026-11-05T03:56:53.205571Z",
+      "observations": [
+        "Artifact discovered: listing-audit.md"
+      ]
+    },
+    {
+      "id": "ev-32b58886498c",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/features.csv",
+      "sha256_digest": "sha256:32b58886498cc651dce86114dbee117eda56319dee5600e11e7e1e6c5415ecb6",
+      "timestamp": "2026-11-05T03:56:53.205704Z",
+      "observations": [
+        "Artifact discovered: features.csv"
+      ]
+    },
+    {
+      "id": "ev-01c8bc71e77a",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/tokens.json",
+      "sha256_digest": "sha256:01c8bc71e77adb6f27b721254d9c697d95c8cea3e5817b2e425829c8a11fda10",
+      "timestamp": "2026-11-05T03:56:53.205765Z",
+      "observations": [
+        "Artifact discovered: tokens.json"
+      ]
+    },
+    {
+      "id": "ev-286dc3f2f07a",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./replica/feedback.md",
+      "sha256_digest": "sha256:286dc3f2f07a2b94792438902a8d7154c3479a1f70b1406edaece7c148028809",
+      "timestamp": "2026-11-05T03:56:53.205850Z",
+      "observations": [
+        "Artifact discovered: feedback.md"
       ]
     },
     {
@@ -176,7 +428,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/config",
       "sha256_digest": "sha256:cae33efdb02cf774435c1ff9cb16bcc1014606908530c6e1dc727615fe3e8cda",
-      "timestamp": "2026-11-04T22:05:21.457958Z",
+      "timestamp": "2026-11-05T03:56:53.205929Z",
       "observations": [
         "Artifact discovered: config"
       ]
@@ -186,7 +438,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/HEAD",
       "sha256_digest": "sha256:28d25bf82af4c0e2b72f50959b2beb859e3e60b9630a5e8c603dad4ddb2b6e80",
-      "timestamp": "2026-11-04T22:05:21.458102Z",
+      "timestamp": "2026-11-05T03:56:53.207660Z",
       "observations": [
         "Artifact discovered: HEAD"
       ]
@@ -196,9 +448,19 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/info/exclude",
       "sha256_digest": "sha256:6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1",
-      "timestamp": "2026-11-04T22:05:21.458195Z",
+      "timestamp": "2026-11-05T03:56:53.207716Z",
       "observations": [
         "Artifact discovered: exclude"
+      ]
+    },
+    {
+      "id": "ev-821594c0f2ca",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./.git/logs/HEAD",
+      "sha256_digest": "sha256:821594c0f2ca319229c45c939efe96431aaa6cc12cf3a785592008b748d0652a",
+      "timestamp": "2026-11-05T03:56:53.207914Z",
+      "observations": [
+        "Artifact discovered: HEAD"
       ]
     },
     {
@@ -206,7 +468,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/description",
       "sha256_digest": "sha256:85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee",
-      "timestamp": "2026-11-04T22:05:21.458242Z",
+      "timestamp": "2026-11-05T03:56:53.208090Z",
       "observations": [
         "Artifact discovered: description"
       ]
@@ -216,7 +478,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/commit-msg.sample",
       "sha256_digest": "sha256:1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437",
-      "timestamp": "2026-11-04T22:05:21.458554Z",
+      "timestamp": "2026-11-05T03:56:53.208245Z",
       "observations": [
         "Artifact discovered: commit-msg.sample"
       ]
@@ -226,7 +488,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/pre-rebase.sample",
       "sha256_digest": "sha256:4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3",
-      "timestamp": "2026-11-04T22:05:21.459054Z",
+      "timestamp": "2026-11-05T03:56:53.208421Z",
       "observations": [
         "Artifact discovered: pre-rebase.sample"
       ]
@@ -236,7 +498,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/sendemail-validate.sample",
       "sha256_digest": "sha256:44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92",
-      "timestamp": "2026-11-04T22:05:21.459357Z",
+      "timestamp": "2026-11-05T03:56:53.208537Z",
       "observations": [
         "Artifact discovered: sendemail-validate.sample"
       ]
@@ -246,7 +508,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/pre-commit.sample",
       "sha256_digest": "sha256:57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b",
-      "timestamp": "2026-11-04T22:05:21.459607Z",
+      "timestamp": "2026-11-05T03:56:53.208745Z",
       "observations": [
         "Artifact discovered: pre-commit.sample"
       ]
@@ -256,7 +518,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/applypatch-msg.sample",
       "sha256_digest": "sha256:0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7",
-      "timestamp": "2026-11-04T22:05:21.460106Z",
+      "timestamp": "2026-11-05T03:56:53.209307Z",
       "observations": [
         "Artifact discovered: applypatch-msg.sample"
       ]
@@ -266,7 +528,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/fsmonitor-watchman.sample",
       "sha256_digest": "sha256:e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0",
-      "timestamp": "2026-11-04T22:05:21.460643Z",
+      "timestamp": "2026-11-05T03:56:53.209469Z",
       "observations": [
         "Artifact discovered: fsmonitor-watchman.sample"
       ]
@@ -276,7 +538,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/pre-receive.sample",
       "sha256_digest": "sha256:a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989",
-      "timestamp": "2026-11-04T22:05:21.460826Z",
+      "timestamp": "2026-11-05T03:56:53.209571Z",
       "observations": [
         "Artifact discovered: pre-receive.sample"
       ]
@@ -286,7 +548,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/prepare-commit-msg.sample",
       "sha256_digest": "sha256:e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619",
-      "timestamp": "2026-11-04T22:05:21.461062Z",
+      "timestamp": "2026-11-05T03:56:53.209681Z",
       "observations": [
         "Artifact discovered: prepare-commit-msg.sample"
       ]
@@ -296,7 +558,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/post-update.sample",
       "sha256_digest": "sha256:81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5",
-      "timestamp": "2026-11-04T22:05:21.461527Z",
+      "timestamp": "2026-11-05T03:56:53.210081Z",
       "observations": [
         "Artifact discovered: post-update.sample"
       ]
@@ -306,7 +568,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/pre-merge-commit.sample",
       "sha256_digest": "sha256:d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53",
-      "timestamp": "2026-11-04T22:05:21.461658Z",
+      "timestamp": "2026-11-05T03:56:53.210175Z",
       "observations": [
         "Artifact discovered: pre-merge-commit.sample"
       ]
@@ -316,7 +578,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/pre-applypatch.sample",
       "sha256_digest": "sha256:e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475",
-      "timestamp": "2026-11-04T22:05:21.462368Z",
+      "timestamp": "2026-11-05T03:56:53.210843Z",
       "observations": [
         "Artifact discovered: pre-applypatch.sample"
       ]
@@ -326,7 +588,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/pre-push.sample",
       "sha256_digest": "sha256:ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a",
-      "timestamp": "2026-11-04T22:05:21.462534Z",
+      "timestamp": "2026-11-05T03:56:53.210918Z",
       "observations": [
         "Artifact discovered: pre-push.sample"
       ]
@@ -336,7 +598,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/update.sample",
       "sha256_digest": "sha256:8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106",
-      "timestamp": "2026-11-04T22:05:21.462850Z",
+      "timestamp": "2026-11-05T03:56:53.210994Z",
       "observations": [
         "Artifact discovered: update.sample"
       ]
@@ -346,9 +608,29 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./.git/hooks/push-to-checkout.sample",
       "sha256_digest": "sha256:a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f",
-      "timestamp": "2026-11-04T22:05:21.463109Z",
+      "timestamp": "2026-11-05T03:56:53.211063Z",
       "observations": [
         "Artifact discovered: push-to-checkout.sample"
+      ]
+    },
+    {
+      "id": "ev-7bf0393f1bbd",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./.git/index",
+      "sha256_digest": "sha256:7bf0393f1bbdac575ccc5d70b5969d0a0b10ee00718c9b85f8f36887d5e67daf",
+      "timestamp": "2026-11-05T03:56:53.211186Z",
+      "observations": [
+        "Artifact discovered: index"
+      ]
+    },
+    {
+      "id": "ev-7f1606576847",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./.git/COMMIT_EDITMSG",
+      "sha256_digest": "sha256:7f1606576847b9da909a75475d13b2e6cdb7cb6a4971d25a932287caa1bae61e",
+      "timestamp": "2026-11-05T03:56:53.211216Z",
+      "observations": [
+        "Artifact discovered: COMMIT_EDITMSG"
       ]
     },
     {
@@ -356,7 +638,7 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./src/design/mod.rs",
       "sha256_digest": "sha256:20909c0d3dd760312cb95b7f774bf610c47a1f8d90d2ab189bb4f613f8623a80",
-      "timestamp": "2026-11-04T22:05:21.463599Z",
+      "timestamp": "2026-11-05T03:56:53.211318Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]
@@ -366,9 +648,19 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./src/types.rs",
       "sha256_digest": "sha256:32df0ee24778ab2374c0911ebc0d1794ef012524f8bce819fed25e0da71b3a7a",
-      "timestamp": "2026-11-04T22:05:21.464110Z",
+      "timestamp": "2026-11-05T03:56:53.211372Z",
       "observations": [
         "Artifact discovered: types.rs"
+      ]
+    },
+    {
+      "id": "ev-f42701380ca6",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./src/handoff/mod.rs",
+      "sha256_digest": "sha256:f42701380ca63df5b71ae86b21b5816e5c6851c6b53a44c6d1fb86660a49379f",
+      "timestamp": "2026-11-05T03:56:53.211467Z",
+      "observations": [
+        "Artifact discovered: mod.rs"
       ]
     },
     {
@@ -376,17 +668,27 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./src/launch/mod.rs",
       "sha256_digest": "sha256:4f67a2dd243629112755e0dafc555ed9a1e265ca2c66f424864417cb16c1575b",
-      "timestamp": "2026-11-04T22:05:21.464730Z",
+      "timestamp": "2026-11-05T03:56:53.211548Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]
     },
     {
-      "id": "ev-717e55085f59",
+      "id": "ev-6c4074a3f6d3",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./src/lib.rs",
+      "sha256_digest": "sha256:6c4074a3f6d3fdb1032180b3d28c7677abe11b854d16f02e97a5cd6123a46ddd",
+      "timestamp": "2026-11-05T03:56:53.211578Z",
+      "observations": [
+        "Artifact discovered: lib.rs"
+      ]
+    },
+    {
+      "id": "ev-9087ae964271",
       "source_type": "directory_artifact",
       "uri_or_path": "./src/brand/mod.rs",
-      "sha256_digest": "sha256:717e55085f596f17d987ed6bf0c215ae1378fb690aa98b9e79e1acb4eb629da6",
-      "timestamp": "2026-11-04T22:05:21.465270Z",
+      "sha256_digest": "sha256:9087ae9642711a7f64800e8e778f49e91cdab181e69f858a4e99305239634c3a",
+      "timestamp": "2026-11-05T03:56:53.211653Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]
@@ -396,17 +698,27 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./src/diff/mod.rs",
       "sha256_digest": "sha256:8b14286afbcc28712de047b3e159bca6ad9c6faa30a95a51e37113ac5105e907",
-      "timestamp": "2026-11-04T22:05:21.465940Z",
+      "timestamp": "2026-11-05T03:56:53.211737Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]
     },
     {
-      "id": "ev-3cc5964c0346",
+      "id": "ev-8a8c3ed95c03",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./src/agent/mod.rs",
+      "sha256_digest": "sha256:8a8c3ed95c03aa1e2cead03b95c75e56012e079e20612ff9a12316e6bb87643e",
+      "timestamp": "2026-11-05T03:56:53.211866Z",
+      "observations": [
+        "Artifact discovered: mod.rs"
+      ]
+    },
+    {
+      "id": "ev-83705bd91f45",
       "source_type": "directory_artifact",
       "uri_or_path": "./src/mcp/mod.rs",
-      "sha256_digest": "sha256:3cc5964c0346019ecfa7e28d3ea6a88e7fabb8c70756304d235cca373a84ef9d",
-      "timestamp": "2026-11-04T22:05:21.466869Z",
+      "sha256_digest": "sha256:83705bd91f4528c3e1459f30ed3257c522bec1a7dcca3eaf2ba3ec8c04cd4108",
+      "timestamp": "2026-11-05T03:56:53.211971Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]
@@ -416,17 +728,17 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./src/architect/mod.rs",
       "sha256_digest": "sha256:78f0ef86b7b1387646dabc6679e4267ed66b5963874ae8abde98d08ab3b27a6a",
-      "timestamp": "2026-11-04T22:05:21.467965Z",
+      "timestamp": "2026-11-05T03:56:53.212073Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]
     },
     {
-      "id": "ev-2ff196fa3140",
+      "id": "ev-a9825d55df2c",
       "source_type": "directory_artifact",
       "uri_or_path": "./src/main.rs",
-      "sha256_digest": "sha256:2ff196fa3140b944d877b41ff1d81276227234ad3a0c42592fa9284e6078e1b5",
-      "timestamp": "2026-11-04T22:05:21.468630Z",
+      "sha256_digest": "sha256:a9825d55df2c16bd72198d90f6293f62033f89cf957da05937d6a7320aa43f9e",
+      "timestamp": "2026-11-05T03:56:53.212135Z",
       "observations": [
         "Artifact discovered: main.rs"
       ]
@@ -436,7 +748,17 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./src/entrepreneur/mod.rs",
       "sha256_digest": "sha256:9a8f461cd02d249636859049243806a1ee92432894b72b85798e3238792117b3",
-      "timestamp": "2026-11-04T22:05:21.469197Z",
+      "timestamp": "2026-11-05T03:56:53.212208Z",
+      "observations": [
+        "Artifact discovered: mod.rs"
+      ]
+    },
+    {
+      "id": "ev-8bbe387c5367",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./src/neural/mod.rs",
+      "sha256_digest": "sha256:8bbe387c5367b3f58e95a174bd3cc3654b3dde274a81e635b64744287606025b",
+      "timestamp": "2026-11-05T03:56:53.212295Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]
@@ -446,17 +768,27 @@
       "source_type": "directory_artifact",
       "uri_or_path": "./src/recon/mod.rs",
       "sha256_digest": "sha256:8e9288cd6bba75b113a499802b01eecd867603e0464e0a79d27f509a2230a366",
-      "timestamp": "2026-11-04T22:05:21.469699Z",
+      "timestamp": "2026-11-05T03:56:53.212368Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]
     },
     {
-      "id": "ev-ae69d17ebbf5",
+      "id": "ev-1350ce76155e",
       "source_type": "directory_artifact",
       "uri_or_path": "./src/orchestrator/mod.rs",
-      "sha256_digest": "sha256:ae69d17ebbf5b4693dcf12178894531b76d44774e6bdbcd5eb65fe5443d7d5cc",
-      "timestamp": "2026-11-04T22:05:21.470682Z",
+      "sha256_digest": "sha256:1350ce76155eceeb4fe4cc18110da8e6e2db19c5f37083a860777b48e9848e86",
+      "timestamp": "2026-11-05T03:56:53.212469Z",
+      "observations": [
+        "Artifact discovered: mod.rs"
+      ]
+    },
+    {
+      "id": "ev-49620c5b727c",
+      "source_type": "directory_artifact",
+      "uri_or_path": "./src/router/mod.rs",
+      "sha256_digest": "sha256:49620c5b727cdeade0c6fc5e485b64351cabca787012df690a62458fed8dec18",
+      "timestamp": "2026-11-05T03:56:53.212587Z",
       "observations": [
         "Artifact discovered: mod.rs"
       ]

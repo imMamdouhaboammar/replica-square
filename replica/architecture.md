@@ -18,19 +18,17 @@
 | `POST` | `/api/auth/login` | No | Authenticate user and issue session token | `{ email: string, password: string }` | `{ user_id: string, token: string }` |
 | `GET` | `/api/homes` | Yes | List all homes belonging to authenticated user | `{ limit?: number, cursor?: string }` | `{ items: homes[], next_cursor?: string }` |
 | `POST` | `/api/homes` | Yes | Create a new entry in homes | `{ title: string, metadata?: Record<string, any> }` | `{ item: homes }` |
-| `GET` | `/api/bookings` | Yes | List all bookings belonging to authenticated user | `{ limit?: number, cursor?: string }` | `{ items: bookings[], next_cursor?: string }` |
-| `POST` | `/api/bookings` | Yes | Create a new entry in bookings | `{ title: string, metadata?: Record<string, any> }` | `{ item: bookings }` |
 
 ## 3. Critical Edge Cases & Risk Mitigations
-
-### Idempotency
-Enforce idempotency-key headers on all POST/PATCH state modifications and Stripe webhooks.
 
 ### Timezones
 All timestamps strictly stored in UTC with timestamptz. Client converts via Intl.DateTimeFormat.
 
 ### Concurrency
 Postgres exclusion constraints and optimistic concurrency locks (version integer) prevent double-actions.
+
+### Idempotency
+Enforce idempotency-key headers on all POST/PATCH state modifications and Stripe webhooks.
 
 ## 4. Phased Build Order
 

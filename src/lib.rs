@@ -1,10 +1,14 @@
+pub mod agent;
 pub mod architect;
 pub mod brand;
 pub mod design;
 pub mod diff;
 pub mod entrepreneur;
+pub mod handoff;
 pub mod launch;
 pub mod mcp;
+pub mod neural;
 pub mod orchestrator;
 pub mod recon;
+pub mod router;
 pub mod types;

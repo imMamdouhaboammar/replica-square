@@ -1,117 +1,100 @@
 ---
-name: replica-agent
+name: replica-square
 description: >
-  Autonomous, clean-room agentic reverse-engineering and software reconstruction engine.
-  Extracts architectural evidence, mines customer grievances, plans PostgreSQL schemas with RLS,
-  synthesizes WCAG 2.2 accessible design tokens, computes 80/20 feature-visual parity, enforces
-  trademark clean-room clearance, and audits store metadata. Triggered by phrases like "clone this app",
-  "reverse engineer this product", "replica recon", "plan replica architecture", "check replica parity",
-  or "clean-room brand sweep".
-version: "1.0.0"
-author: "Antigravity & REA Contributors"
+  Fully agentic, clean-room reverse-engineering and software reconstruction engine.
+  Features a dynamic intent router, 7 autonomous tool-agents, neural signal graph,
+  and auto-handoff mechanism with circuit-breaker protection.
+  Studies any application, synthesizes a production-grade clone architecture, verifies parity,
+  and clears all trademark and store-listing gates entirely without touching proprietary code or assets.
+  Triggered by: "clone this app", "reverse engineer X", "build my own version of X",
+  "replica recon", "replica architect", "parity check", "clean-room sweep", "app store audit",
+  or "run the full replica pipeline".
+version: "2.0.0"
+author: "Replica-Square Contributors"
 license: "MIT"
-compatibility: ">=1.0.0"
+repository: "https://github.com/imMamdouhaboammar/replica-square"
+hosts:
+  - antigravity
+  - claude
+  - codex
+  - cursor
+  - universal
 metadata:
-  engine: "Rust (Native binary + MCP stdio server)"
-  skills_version: "v1.0.0"
+  engine: "Rust 1.99 (native binary + JSON-RPC 2.0 MCP stdio server)"
+  tools: 7
+  playbooks: 7
+  tests: 34
 ---
 
-# Replica Agent: Autonomous Clean-Room Reconstruction Engine
+# Replica-Square: Fully Agentic Clean-Room Reconstruction Engine
 
-Replica Agent is a production-grade, autonomous clean-room reverse engineering and software reconstruction platform. Unlike passive markdown-prompt collections, Replica Agent executes as a high-performance native Rust engine with built-in Model Context Protocol (MCP) server support, cryptographic evidence ledgers, and deterministic verification gates.
-
-## Core Invariants
-
-1. **Clean-Room Invariant**:
-   Never copy proprietary source code, copyrighted assets, logos, trademarks, or private API endpoints. Reconstruct strictly from observable behavior, external API contracts, and user interaction flows.
-2. **Cryptographic Evidence Ledger**:
-   Every architectural claim must cite a concrete evidence digest (SHA-256 hash, URL provenance, or DOM/network trace).
-3. **80/20 Parity Model**:
-   Overall Parity Index is mathematically balanced:
-   $$\text{Parity} = 0.8 \times \text{Feature Parity} + 0.2 \times \text{Visual Layout Parity}$$
-   Features (what users actually pay for) dictate functional readiness.
-4. **WCAG 2.2 Strict Accessibility**:
-   All color tokens are verified against mathematical relative luminance thresholds (AA $\ge$ 4.5:1, AAA $\ge$ 7.0:1).
-5. **Zero Trademark Leakage (Sweep Gate)**:
-   Preflight deployment strictly halts if competitor brand names, domains, or trademark colors exist in shipping code.
+> Point it at any app or natural language prompt. It dynamically routes intent, harvests verifiable evidence, plans a clean-room rebuild via autonomous tool-agents, propagates signals across a neural graph, and auto-handoffs across gates — autonomously.
 
 ---
 
-## Autonomous Pipeline Stages
+## Dynamic Agentic Routing & Auto-Handoff Invariant
+
+$$\text{Intent (Any Prompt)} \xrightarrow{\text{Dynamic Router}} \text{Execution DAG} \xrightarrow{\text{Tool-Agents}} \text{Neural Signal Bus} \xrightarrow{\text{Auto-Handoff}} \text{Production Release}$$
+
+---
+
+## The Seven Tool-Agents
+
+| Agent | CLI | Playbook | What it does |
+|:---|:---|:---|:---|
+| **recon** | `replica-square recon` | [`skills/replica-square/playbooks/recon.md`](skills/replica-square/playbooks/recon.md) | Maps screens, flows, data model, and cryptographic evidence ledger |
+| **entrepreneur** | `replica-square entrepreneur` | [`skills/replica-square/playbooks/entrepreneur.md`](skills/replica-square/playbooks/entrepreneur.md) | Mines user pain, ranks themes, formulates counter-features |
+| **architect** | `replica-square architect` | [`skills/replica-square/playbooks/architect.md`](skills/replica-square/playbooks/architect.md) | Synthesizes PostgreSQL schema, API contracts, build order |
+| **design** | `replica-square design` | [`skills/replica-square/playbooks/design.md`](skills/replica-square/playbooks/design.md) | WCAG 2.2 color validation, Tailwind token export |
+| **diff** | `replica-square diff` | [`skills/replica-square/playbooks/diff.md`](skills/replica-square/playbooks/diff.md) | 80/20 feature-visual parity scoring |
+| **sweep** | `replica-square sweep` | [`skills/replica-square/playbooks/sweep.md`](skills/replica-square/playbooks/sweep.md) | Trademark, domain, and hex-color clean-room sweep |
+| **launch** | `replica-square launch` | [`skills/replica-square/playbooks/launch.md`](skills/replica-square/playbooks/launch.md) | App Store and Google Play metadata linter |
+
+---
+
+## Neural Connections & Auto-Handoff Architecture
 
 ```mermaid
 flowchart TD
-    Target["Target App / URL / Binary"] --> Recon["1. Recon & Evidence Harvester (ReconEngine)"]
-    Recon --> Ledger["Cryptographic Evidence Ledger (SHA-256)"]
-    Recon --> Features["Feature Matrix (features.csv)"]
-    
-    Target --> Entrepreneur["2. Market Grievance Miner (EntrepreneurEngine)"]
-    Entrepreneur --> Feedback["Customer Pain Themes & Counter-Features"]
-    
-    Recon --> Architect["3. Clean-Room Architect (ArchitectEngine)"]
-    Architect --> Schema["PostgreSQL DDL (UUID + RLS + Indexes)"]
-    Architect --> Contracts["Type-safe API Route Contracts"]
-    
-    Recon --> Design["4. Design Synthesizer (DesignEngine)"]
-    Design --> Tokens["WCAG 2.2 Color Tokens & Tailwind Config"]
-    
-    Features --> Diff["5. Verification & Parity Gate (DiffEngine)"]
-    Diff --> Score["Functional & SIMD Visual Layout Parity Score"]
-    
-    Score --> Brand["6. Trademark Clean-Room Sweeper (BrandEngine)"]
-    Brand --> Clearance{"Zero Leaks?"}
-    Clearance -->|No| Fix["Purge Violations"]
-    Fix --> Brand
-    Clearance -->|Yes| Launch["7. Launch & Deploy Preflight (LaunchEngine)"]
-    Launch --> Ship["Production Ready"]
+    PROMPT["User Prompt (Natural Language)"] --> ROUTER["Dynamic Agentic Router<br/>(RegexSet + Parameter Extraction)"]
+    ROUTER --> DAG["Directed Acyclic Graph (DAG)"]
+
+    subgraph ENGINE ["Auto-Handoff Engine & Neural Bus"]
+        DAG --> RECON["ReconAgent<br/>Evidence Harvester"]
+        RECON -->|"Complete (⚠️ passthrough)"| ENTRE["EntrepreneurAgent<br/>Market Pain Miner"]
+        RECON -->|"Complete (Strict Gate)"| ARCH["ArchitectAgent<br/>PostgreSQL & API Spec"]
+        ARCH -->|"Complete"| DESIGN["DesignAgent<br/>WCAG Token Auditor"]
+        ARCH -->|"Complete"| DIFF["DiffAgent<br/>Parity Scorer"]
+        DESIGN -->|"Complete (⚠️ passthrough)"| SWEEP["SweepAgent<br/>Clean-Room Clearance"]
+        DIFF -->|"Complete (⚠️ passthrough)"| SWEEP
+        SWEEP -->|"Complete (Strict Gate)"| LAUNCH["LaunchAgent<br/>Store Listing Linter"]
+
+        CIRCUIT["⚡ Fable Circuit Breaker (Halt if failures ≥ 2)"]
+    end
+
+    LAUNCH --> OUT["✅ Production-Ready Deliverable"]
+    ENGINE -.->|"Live State & Signals"| TRACE["replica/handoff-trace.md"]
 ```
 
 ---
 
-## CLI Commands
+## Quick Start
 
+### 1. Dynamic Routing & Autonomous Execution
 ```bash
-# Full end-to-end autonomous reconstruction pipeline
-replica-agent run --target Calendly --url https://calendly.com --fail-under 80
+# Analyze prompt and inspect execution DAG
+replica-square route "Clone Calendly and check parity at 85%"
 
-# Harvest evidence and generate surface map
-replica-agent recon https://target.app --out replica/
-
-# Synthesize PostgreSQL schema with RLS and API routes
-replica-agent architect replica/recon-map.json
-
-# Validate WCAG 2.2 color contrast and export Tailwind tokens
-replica-agent design replica/tokens.json
-
-# Mine customer reviews and formulate competitive counters
-replica-agent entrepreneur replica/reviews.csv
-
-# Calculate parity score (features + visual screenshot diff)
-replica-agent diff replica/features.csv --original-png orig.png --clone-png clone.png
-
-# Clean-room trademark and brand IP sweep
-replica-agent sweep . --avoid "Competitor,Competitor Inc" --domains competitor.com --colors "#006bff"
-
-# Audit App Store and Google Play listing metadata
-replica-agent launch replica/listing.json
-
-# Run as Model Context Protocol (MCP) server
-replica-agent mcp
+# Run autonomous pipeline with dynamic routing and auto-handoff
+replica-square run --prompt "Build a full clean-room clone of Calendly"
 ```
 
----
+### 2. Standard Pipeline
+```bash
+replica-square run --target "Calendly" --url https://calendly.com --fail-under 80
+```
 
-## MCP Server Configuration
-
-To register Replica Agent in Gemini CLI, Claude Code, or Cursor, add the following to your `claude_desktop_config.json` or `.mcp/servers.json`:
-
-```json
-{
-  "mcpServers": {
-    "replica-agent": {
-      "command": "/path/to/replica-agent",
-      "args": ["mcp"]
-    }
-  }
-}
+### 3. Model Context Protocol (MCP) Server
+```bash
+replica-square mcp
 ```

@@ -35,19 +35,3 @@ create index homes_created_at_idx on homes (created_at desc);
 ALTER TABLE public.homes ENABLE ROW LEVEL SECURITY;
 create policy homes_all_own on homes for all using (user_id = auth.uid());
 
--- Table: bookings
-CREATE TABLE IF NOT EXISTS public.bookings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-  user_id uuid NOT NULL REFERENCES public.users(id) on delete cascade,
-  title text NOT NULL,
-  status text DEFAULT 'active' NOT NULL check (status in ('active', 'draft', 'archived')),
-  metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
-  created_at timestamptz DEFAULT now() NOT NULL,
-  updated_at timestamptz DEFAULT now() NOT NULL
-);
-
-create index bookings_user_id_idx on bookings (user_id);
-create index bookings_created_at_idx on bookings (created_at desc);
-ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
-create policy bookings_all_own on bookings for all using (user_id = auth.uid());
-
