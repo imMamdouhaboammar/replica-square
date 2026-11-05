@@ -1,0 +1,35 @@
+{
+  "id": "replica-square",
+  "name": "Replica-Square",
+  "version": "2.0.0",
+  "tagline": "Fully agentic clean-room product reverse-engineering engine",
+  "description": "Replica-Square is a Rust-native autonomous agent that runs a deterministic 7-phase pipeline — recon, entrepreneur, architect, design, diff, sweep, launch — to analyze, score, and generate a clean-room product replica plan from any publicly observable SaaS application.",
+  "category": "engineering",
+  "tags": ["reverse-engineering", "product-analysis", "clean-room", "agentic", "rust", "mcp"],
+  "author": {
+    "name": "Replica-Square Contributors",
+    "url": "https://github.com/imMamdouhaboammar/replica-square"
+  },
+  "install": {
+    "npm": "npx skills add https://github.com/imMamdouhaboammar/replica-square",
+    "binary": "cargo install --git https://github.com/imMamdouhaboammar/replica-square replica-square"
+  },
+  "mcp": {
+    "transport": "stdio",
+    "command": "replica-square mcp",
+    "tools": [
+      "replica_recon",
+      "replica_entrepreneur",
+      "replica_architect",
+      "replica_design",
+      "replica_diff",
+      "replica_sweep",
+      "replica_launch"
+    ]
+  },
+  "skills": ["replica-square"],
+  "requirements": {
+    "rust": ">=1.75",
+    "bun": ">=1.0"
+  }
+}

@@ -14,10 +14,10 @@ use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(
-    name = "replica",
-    author = "Replica Agent Contributors",
-    version = "0.1.0",
-    about = "Autonomous clean-room agentic reverse-engineering and replica engine"
+    name = "replica-square",
+    author = "Replica-Square Contributors",
+    version = "2.0.0",
+    about = "Fully agentic clean-room reverse-engineering and product-replica engine"
 )]
 struct Cli {
     #[command(subcommand)]

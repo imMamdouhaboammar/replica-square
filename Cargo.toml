@@ -1,16 +1,16 @@
 [package]
-name = "replica-agent"
-version = "0.1.0"
+name = "replica-square"
+version = "2.0.0"
 edition = "2021"
-authors = ["Replica Agent Contributors"]
-description = "Autonomous clean-room agentic reverse-engineering and replica engine"
+authors = ["Replica-Square Contributors"]
+description = "Fully agentic clean-room reverse-engineering and product-replica engine"
 
 [lib]
-name = "replica_agent"
+name = "replica_square"
 path = "src/lib.rs"
 
 [[bin]]
-name = "replica-agent"
+name = "replica-square"
 path = "src/main.rs"
 
 [dependencies]

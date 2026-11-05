@@ -1,10 +1,10 @@
-use replica_agent::architect::ArchitectEngine;
-use replica_agent::brand::BrandEngine;
-use replica_agent::design::DesignEngine;
-use replica_agent::diff::DiffEngine;
-use replica_agent::launch::{AppStoreListing, GooglePlayListing, LaunchEngine, StoreMetadata};
-use replica_agent::recon::ReconEngine;
-use replica_agent::types::{ContrastPair, DesignTokens, ReconMap};
+use replica_square::architect::ArchitectEngine;
+use replica_square::brand::BrandEngine;
+use replica_square::design::DesignEngine;
+use replica_square::diff::DiffEngine;
+use replica_square::launch::{AppStoreListing, GooglePlayListing, LaunchEngine, StoreMetadata};
+use replica_square::recon::ReconEngine;
+use replica_square::types::{ContrastPair, DesignTokens, ReconMap};
 use std::collections::HashMap;
 use std::fs;
 

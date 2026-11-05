@@ -1,0 +1,10 @@
+{
+  "name": "replica-square",
+  "version": "2.0.0",
+  "description": "Fully agentic clean-room reverse-engineering and product-replica engine. Runs a 7-phase pipeline: recon → entrepreneur → architect → design → diff → sweep → launch.",
+  "homepage": "https://github.com/imMamdouhaboammar/replica-square",
+  "skills": ["replica-square"],
+  "binary": "replica-square",
+  "runtime": "rust",
+  "license": "MIT"
+}
