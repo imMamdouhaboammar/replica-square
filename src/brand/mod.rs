@@ -31,14 +31,31 @@ impl BrandEngine {
         avoid_colors: &[String],
     ) -> Result<CleanRoomReport> {
         let skip_dirs: HashSet<&str> = [
-            ".git", "node_modules", ".next", ".nuxt", "dist", "build", "target", "out",
-            ".turbo", ".cache", "coverage", "__pycache__", ".venv", "venv", "replica",
-        ].into_iter().collect();
+            ".git",
+            "node_modules",
+            ".next",
+            ".nuxt",
+            "dist",
+            "build",
+            "target",
+            "out",
+            ".turbo",
+            ".cache",
+            "coverage",
+            "__pycache__",
+            ".venv",
+            "venv",
+            "replica",
+        ]
+        .into_iter()
+        .collect();
 
         let binary_exts: HashSet<&str> = [
-            "png", "jpg", "jpeg", "gif", "webp", "ico", "pdf", "zip", "woff", "woff2",
-            "ttf", "mp4", "mov", "dylib", "so", "exe", "lock",
-        ].into_iter().collect();
+            "png", "jpg", "jpeg", "gif", "webp", "ico", "pdf", "zip", "woff", "woff2", "ttf",
+            "mp4", "mov", "dylib", "so", "exe", "lock",
+        ]
+        .into_iter()
+        .collect();
 
         let hex_regex = Regex::new(r"#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b").unwrap();
         let norm_colors: HashSet<String> = avoid_colors.iter().map(|c| Self::norm_hex(c)).collect();
@@ -144,7 +161,10 @@ impl BrandEngine {
             md.push_str("### 🟢 PASSED: Codebase is 100% Clean-Room Cleared\n\n");
             md.push_str("No references to competitor brand names, registered domains, or trademark colors were found.\n\n");
         } else {
-            md.push_str(&format!("### 🔴 BLOCKED: {} Violations Found\n\n", report.total_violations));
+            md.push_str(&format!(
+                "### 🔴 BLOCKED: {} Violations Found\n\n",
+                report.total_violations
+            ));
             md.push_str("Clean-room clearance cannot pass until all original brand references and colors are purged.\n\n");
             md.push_str("| File | Line | Type | Matched Term | Code Snippet |\n");
             md.push_str("|:---|:---|:---|:---|:---|\n");

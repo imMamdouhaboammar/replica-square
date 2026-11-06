@@ -209,7 +209,12 @@ impl DynamicRouter {
         let dag = self.build_dag(&intent);
         let explanation = self.explain(&intent, prompt);
 
-        RouteResult { intent, dag, params, explanation }
+        RouteResult {
+            intent,
+            dag,
+            params,
+            explanation,
+        }
     }
 
     fn classify(&self, prompt: &str) -> PhaseIntent {
@@ -217,19 +222,34 @@ impl DynamicRouter {
         if self.full_pipeline_patterns.is_match(prompt) {
             return PhaseIntent::FullPipeline;
         }
-        if self.sweep_patterns.is_match(prompt) { return PhaseIntent::Sweep; }
-        if self.launch_patterns.is_match(prompt) { return PhaseIntent::Launch; }
-        if self.diff_patterns.is_match(prompt) { return PhaseIntent::Diff; }
-        if self.design_patterns.is_match(prompt) { return PhaseIntent::Design; }
-        if self.architect_patterns.is_match(prompt) { return PhaseIntent::Architect; }
-        if self.entrepreneur_patterns.is_match(prompt) { return PhaseIntent::Entrepreneur; }
-        if self.recon_patterns.is_match(prompt) { return PhaseIntent::Recon; }
+        if self.sweep_patterns.is_match(prompt) {
+            return PhaseIntent::Sweep;
+        }
+        if self.launch_patterns.is_match(prompt) {
+            return PhaseIntent::Launch;
+        }
+        if self.diff_patterns.is_match(prompt) {
+            return PhaseIntent::Diff;
+        }
+        if self.design_patterns.is_match(prompt) {
+            return PhaseIntent::Design;
+        }
+        if self.architect_patterns.is_match(prompt) {
+            return PhaseIntent::Architect;
+        }
+        if self.entrepreneur_patterns.is_match(prompt) {
+            return PhaseIntent::Entrepreneur;
+        }
+        if self.recon_patterns.is_match(prompt) {
+            return PhaseIntent::Recon;
+        }
 
         // Broad catch: any mention of a replica/clone/rebuild falls into FullPipeline
         let broad = RegexSet::new([
             r"(?i)\b(clone|replicate|rebuild|replica)\b",
             r"(?i)\b(build.my.own|build.a.copy|create.alternative)\b",
-        ]).unwrap();
+        ])
+        .unwrap();
         if broad.is_match(prompt) {
             return PhaseIntent::FullPipeline;
         }
@@ -247,7 +267,11 @@ impl DynamicRouter {
             params.insert("url".to_string(), m.as_str().to_string());
         }
         if let Some(cap) = self.threshold_extractor.captures(prompt) {
-            let val = cap.get(1).or_else(|| cap.get(2)).map(|m| m.as_str()).unwrap_or("80");
+            let val = cap
+                .get(1)
+                .or_else(|| cap.get(2))
+                .map(|m| m.as_str())
+                .unwrap_or("80");
             params.insert("fail_under".to_string(), val.to_string());
         }
 
@@ -299,7 +323,9 @@ impl DynamicRouter {
 }
 
 impl Default for DynamicRouter {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 // ─── DAG construction helpers ────────────────────────────────────────────────
@@ -320,14 +346,18 @@ fn single_node_dag(agent: AgentKind) -> Vec<DagNode> {
 
 fn full_pipeline_dag() -> Vec<DagNode> {
     vec![
-        node(AgentKind::Recon,         vec![],                       false),
-        node(AgentKind::Entrepreneur,  vec!["recon".into()],         true),  // optional
-        node(AgentKind::Architect,     vec!["recon".into()],         false),
-        node(AgentKind::Design,        vec!["architect".into()],     false),
-        node(AgentKind::Diff,          vec!["architect".into()],     false),
+        node(AgentKind::Recon, vec![], false),
+        node(AgentKind::Entrepreneur, vec!["recon".into()], true), // optional
+        node(AgentKind::Architect, vec!["recon".into()], false),
+        node(AgentKind::Design, vec!["architect".into()], false),
+        node(AgentKind::Diff, vec!["architect".into()], false),
         // sweep and launch both wait for diff + design
-        node(AgentKind::Sweep,         vec!["diff".into(), "design".into()], false),
-        node(AgentKind::Launch,        vec!["sweep".into()],         false),
+        node(
+            AgentKind::Sweep,
+            vec!["diff".into(), "design".into()],
+            false,
+        ),
+        node(AgentKind::Launch, vec!["sweep".into()], false),
     ]
 }
 
@@ -335,10 +365,15 @@ fn resume_dag(from_phase: &str) -> Vec<DagNode> {
     let all = full_pipeline_dag();
     let start_idx = all.iter().position(|n| n.id == from_phase).unwrap_or(0);
     // Return subgraph from start_idx; mark earlier nodes skippable
-    all.into_iter().enumerate().map(|(i, mut n)| {
-        if i < start_idx { n.skippable = true; }
-        n
-    }).collect()
+    all.into_iter()
+        .enumerate()
+        .map(|(i, mut n)| {
+            if i < start_idx {
+                n.skippable = true;
+            }
+            n
+        })
+        .collect()
 }
 
 // ─── Render helpers ───────────────────────────────────────────────────────────
@@ -370,7 +405,11 @@ impl RouteResult {
             };
             md.push_str(&format!(
                 "{:>2}. {:12} │ {}{}{}\n",
-                i + 1, node.id, node.label, dep_tag, skip_tag
+                i + 1,
+                node.id,
+                node.label,
+                dep_tag,
+                skip_tag
             ));
         }
         md.push_str("```\n");

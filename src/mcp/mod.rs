@@ -203,7 +203,10 @@ impl McpServer {
                     }
                     "replica_orchestrate" => {
                         let prompt = args.get("prompt").and_then(|v| v.as_str()).unwrap_or("");
-                        let ws = args.get("workspace_path").and_then(|v| v.as_str()).unwrap_or(".");
+                        let ws = args
+                            .get("workspace_path")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or(".");
                         match crate::orchestrator::Orchestrator::run_routed(prompt, ws) {
                             Ok(res) => json!({
                                 "status": "success",
@@ -219,7 +222,9 @@ impl McpServer {
                         }
                     }
                     "replica_design" => {
-                        if let Ok(tokens) = serde_json::from_value::<DesignTokens>(args.get("tokens_json").cloned().unwrap_or(json!({}))) {
+                        if let Ok(tokens) = serde_json::from_value::<DesignTokens>(
+                            args.get("tokens_json").cloned().unwrap_or(json!({})),
+                        ) {
                             let contrast_results = DesignEngine::check_tokens(&tokens);
                             let tailwind = DesignEngine::export_tailwind(&tokens);
                             json!({
@@ -232,18 +237,36 @@ impl McpServer {
                         }
                     }
                     "replica_brand_sweep" => {
-                        let root = args.get("code_root").and_then(|v| v.as_str()).unwrap_or(".");
-                        let names: Vec<String> = args.get("avoid_names")
+                        let root = args
+                            .get("code_root")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or(".");
+                        let names: Vec<String> = args
+                            .get("avoid_names")
                             .and_then(|v| v.as_array())
-                            .map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect())
+                            .map(|a| {
+                                a.iter()
+                                    .filter_map(|x| x.as_str().map(String::from))
+                                    .collect()
+                            })
                             .unwrap_or_default();
-                        let domains: Vec<String> = args.get("avoid_domains")
+                        let domains: Vec<String> = args
+                            .get("avoid_domains")
                             .and_then(|v| v.as_array())
-                            .map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect())
+                            .map(|a| {
+                                a.iter()
+                                    .filter_map(|x| x.as_str().map(String::from))
+                                    .collect()
+                            })
                             .unwrap_or_default();
-                        let colors: Vec<String> = args.get("avoid_colors")
+                        let colors: Vec<String> = args
+                            .get("avoid_colors")
                             .and_then(|v| v.as_array())
-                            .map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect())
+                            .map(|a| {
+                                a.iter()
+                                    .filter_map(|x| x.as_str().map(String::from))
+                                    .collect()
+                            })
                             .unwrap_or_default();
 
                         match BrandEngine::sweep_codebase(root, &names, &domains, &colors) {
@@ -257,16 +280,24 @@ impl McpServer {
                         }
                     }
                     "replica_diff" => {
-                        let csv_path = args.get("features_csv_path").and_then(|v| v.as_str()).unwrap_or("");
+                        let csv_path = args
+                            .get("features_csv_path")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("");
                         match DiffEngine::calculate_feature_parity(csv_path) {
                             Ok(mut rep) => {
                                 if let (Some(orig), Some(clone)) = (
                                     args.get("original_png_path").and_then(|v| v.as_str()),
                                     args.get("clone_png_path").and_then(|v| v.as_str()),
                                 ) {
-                                    if let Ok(v_score) = DiffEngine::compute_visual_layout_parity(orig, clone) {
+                                    if let Ok(v_score) =
+                                        DiffEngine::compute_visual_layout_parity(orig, clone)
+                                    {
                                         rep.visual_score = Some(v_score);
-                                        rep.overall_score = ((0.8 * rep.feature_score + 0.2 * v_score) * 10.0).round() / 10.0;
+                                        rep.overall_score =
+                                            ((0.8 * rep.feature_score + 0.2 * v_score) * 10.0)
+                                                .round()
+                                                / 10.0;
                                     }
                                 }
                                 json!({
@@ -279,7 +310,9 @@ impl McpServer {
                         }
                     }
                     "replica_launch_audit" => {
-                        if let Ok(meta) = serde_json::from_value::<StoreMetadata>(args.get("listing_metadata").cloned().unwrap_or(json!({}))) {
+                        if let Ok(meta) = serde_json::from_value::<StoreMetadata>(
+                            args.get("listing_metadata").cloned().unwrap_or(json!({})),
+                        ) {
                             let audit = LaunchEngine::audit_listing(&meta);
                             json!({
                                 "status": "success",
@@ -298,7 +331,9 @@ impl McpServer {
                 JsonRpcResponse {
                     jsonrpc: "2.0".to_string(),
                     id: req.id,
-                    result: Some(json!({ "content": [{ "type": "text", "text": serde_json::to_string_pretty(&result).unwrap() }] })),
+                    result: Some(
+                        json!({ "content": [{ "type": "text", "text": serde_json::to_string_pretty(&result).unwrap() }] }),
+                    ),
                     error: None,
                 }
             }

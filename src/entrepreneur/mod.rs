@@ -32,7 +32,8 @@ pub struct EntrepreneurEngine;
 impl EntrepreneurEngine {
     /// Ingest reviews CSV and cluster into actionable feedback themes
     pub fn analyze_reviews<P: AsRef<Path>>(csv_path: P) -> Result<Vec<FeedbackTheme>> {
-        let file = File::open(&csv_path).with_context(|| format!("Opening reviews CSV {:?}", csv_path.as_ref()))?;
+        let file = File::open(&csv_path)
+            .with_context(|| format!("Opening reviews CSV {:?}", csv_path.as_ref()))?;
         let mut rdr = csv::Reader::from_reader(file);
 
         let mut reviews: Vec<RawReview> = Vec::new();
@@ -135,7 +136,11 @@ impl EntrepreneurEngine {
         }
 
         // Sort descending by dissatisfaction score
-        theme_results.sort_by(|a, b| b.dissatisfaction_score.partial_cmp(&a.dissatisfaction_score).unwrap());
+        theme_results.sort_by(|a, b| {
+            b.dissatisfaction_score
+                .partial_cmp(&a.dissatisfaction_score)
+                .unwrap()
+        });
         Ok(theme_results)
     }
 
@@ -180,7 +185,9 @@ impl EntrepreneurEngine {
     pub fn render_markdown(themes: &[FeedbackTheme]) -> String {
         let mut md = String::new();
         md.push_str("# Entrepreneur Feedback & Strategic Edge Report\n\n");
-        md.push_str("> Grounded in real customer reviews, complaints, and incumbent weaknesses.\n\n");
+        md.push_str(
+            "> Grounded in real customer reviews, complaints, and incumbent weaknesses.\n\n",
+        );
 
         md.push_str("| Rank | Theme | Mentions | Pain Score | Counter-Strategy |\n");
         md.push_str("|:---|:---|:---|:---|:---|\n");
@@ -194,7 +201,7 @@ impl EntrepreneurEngine {
                 t.recommended_feature_counter
             ));
         }
-        md.push_str("\n");
+        md.push('\n');
 
         // Opportunity ROI Matrix
         let opps = Self::calculate_opportunity_matrix(themes);
@@ -204,7 +211,13 @@ impl EntrepreneurEngine {
         for o in &opps {
             md.push_str(&format!(
                 "| #{} | **{}** | `{:.2}` | `{}` ({:.1}d) | **{:.2}** | {} |\n",
-                o.rank, o.title, o.dissatisfaction_score, o.effort_size, o.effort_cost, o.opportunity_roi, o.counter_strategy
+                o.rank,
+                o.title,
+                o.dissatisfaction_score,
+                o.effort_size,
+                o.effort_cost,
+                o.opportunity_roi,
+                o.counter_strategy
             ));
         }
         md.push('\n');
@@ -214,12 +227,15 @@ impl EntrepreneurEngine {
             md.push_str(&format!("### {} (`{}`)\n", t.title, t.theme_id));
             md.push_str(&format!("- **Pain Score**: {}\n", t.dissatisfaction_score));
             md.push_str(&format!("- **Sources**: {}\n", t.sources.join(", ")));
-            md.push_str(&format!("- **Our Counter-Feature**: {}\n", t.recommended_feature_counter));
+            md.push_str(&format!(
+                "- **Our Counter-Feature**: {}\n",
+                t.recommended_feature_counter
+            ));
             md.push_str("- **Customer Quotes**:\n");
             for q in &t.sample_quotes {
                 md.push_str(&format!("  * {}\n", q));
             }
-            md.push_str("\n");
+            md.push('\n');
         }
 
         md

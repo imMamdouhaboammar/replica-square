@@ -157,8 +157,14 @@ fn test_auto_handoff_engine_execution() {
     let result = HandoffEngine::execute_dag(&route.dag, &ctx).expect("Handoff execution failed");
 
     assert!(result.success, "Pipeline should succeed");
-    assert!(result.agents_run >= 5, "At least 5 agents should have executed");
-    assert!(!result.handoffs.is_empty(), "Handoff records should be logged");
+    assert!(
+        result.agents_run >= 5,
+        "At least 5 agents should have executed"
+    );
+    assert!(
+        !result.handoffs.is_empty(),
+        "Handoff records should be logged"
+    );
     assert!(temp_ws.join("replica").join("handoff-trace.md").exists());
     assert!(temp_ws.join("replica").join("recon.md").exists());
     assert!(temp_ws.join("replica").join("architecture.md").exists());
@@ -175,8 +181,11 @@ fn test_orchestrator_routed_execution() {
     let _ = fs::remove_dir_all(&temp_ws);
     fs::create_dir_all(&temp_ws).unwrap();
 
-    let res = Orchestrator::run_routed("Build a clean replica of Calendly with 80% parity", &temp_ws)
-        .expect("Routed execution failed");
+    let res = Orchestrator::run_routed(
+        "Build a clean replica of Calendly with 80% parity",
+        &temp_ws,
+    )
+    .expect("Routed execution failed");
 
     assert!(res.success);
     assert_eq!(res.agents_failed, 0);
@@ -216,7 +225,8 @@ fn test_elite_breakthrough_engines() {
         },
     ];
 
-    let opps = replica_square::entrepreneur::EntrepreneurEngine::calculate_opportunity_matrix(&themes);
+    let opps =
+        replica_square::entrepreneur::EntrepreneurEngine::calculate_opportunity_matrix(&themes);
     assert_eq!(opps.len(), 2);
     // Pricing: S effort (cost 1.0) -> ROI = 8.5 * 10 / 1.0 = 85.0
     // Sync: XL effort (cost 6.0) -> ROI = 9.2 * 10 / 6.0 = 15.33
@@ -261,8 +271,13 @@ fn test_elite_breakthrough_engines() {
     }];
 
     let spec_out = temp_ws.join("e2e").join("flows.spec.ts");
-    replica_square::e2e::E2eGenerator::write_spec_file(&flows, &screens, "http://localhost:3000", &spec_out)
-        .expect("Write spec failed");
+    replica_square::e2e::E2eGenerator::write_spec_file(
+        &flows,
+        &screens,
+        "http://localhost:3000",
+        &spec_out,
+    )
+    .expect("Write spec failed");
     assert!(spec_out.exists());
     let spec_content = fs::read_to_string(&spec_out).unwrap();
     assert!(spec_content.contains("AxeBuilder"));

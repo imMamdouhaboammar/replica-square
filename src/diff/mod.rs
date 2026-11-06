@@ -9,7 +9,8 @@ pub struct DiffEngine;
 impl DiffEngine {
     /// Calculate functional feature parity score from features CSV
     pub fn calculate_feature_parity<P: AsRef<Path>>(csv_path: P) -> Result<ParityScoreReport> {
-        let file = File::open(&csv_path).with_context(|| format!("Opening features CSV {:?}", csv_path.as_ref()))?;
+        let file = File::open(&csv_path)
+            .with_context(|| format!("Opening features CSV {:?}", csv_path.as_ref()))?;
         let mut rdr = csv::Reader::from_reader(file);
 
         let mut total_possible_weight = 0.0;
@@ -39,7 +40,10 @@ impl DiffEngine {
             let clone_status = FeatureStatus::from_str_loose(clone_str);
 
             // Skip rows marked skip or where original is "no" (replica unique extensions)
-            if clone_status == FeatureStatus::Skip || original_str == "no" || original_str == "false" {
+            if clone_status == FeatureStatus::Skip
+                || original_str == "no"
+                || original_str == "false"
+            {
                 continue;
             }
 
@@ -94,7 +98,10 @@ impl DiffEngine {
     }
 
     /// Compare two screenshots and compute structural layout similarity (0.0 to 100.0)
-    pub fn compute_visual_layout_parity<P: AsRef<Path>>(orig_path: P, clone_path: P) -> Result<f64> {
+    pub fn compute_visual_layout_parity<P: AsRef<Path>>(
+        orig_path: P,
+        clone_path: P,
+    ) -> Result<f64> {
         let img1 = ImageReader::open(orig_path.as_ref())?.decode()?.to_luma8();
         let img2 = ImageReader::open(clone_path.as_ref())?.decode()?.to_luma8();
 
@@ -109,8 +116,18 @@ impl DiffEngine {
         let target_h1 = (h1 as f64 * scale1).round() as u32;
         let target_h2 = (h2 as f64 * scale2).round() as u32;
 
-        let r_img1 = image::imageops::resize(&img1, target_width, target_h1, image::imageops::FilterType::Triangle);
-        let r_img2 = image::imageops::resize(&img2, target_width, target_h2, image::imageops::FilterType::Triangle);
+        let r_img1 = image::imageops::resize(
+            &img1,
+            target_width,
+            target_h1,
+            image::imageops::FilterType::Triangle,
+        );
+        let r_img2 = image::imageops::resize(
+            &img2,
+            target_width,
+            target_h2,
+            image::imageops::FilterType::Triangle,
+        );
 
         let common_height = target_h1.min(target_h2);
         if common_height == 0 {
@@ -142,7 +159,11 @@ impl DiffEngine {
                     total_cells_scored += 1;
                     let diff = (d1 - d2).abs();
                     let max_d = d1.max(d2);
-                    let cell_sim = if max_d > 0.0 { 1.0 - (diff / max_d) } else { 1.0 };
+                    let cell_sim = if max_d > 0.0 {
+                        1.0 - (diff / max_d)
+                    } else {
+                        1.0
+                    };
                     similarity_sum += cell_sim;
                 }
             }
@@ -189,13 +210,19 @@ impl DiffEngine {
     pub fn render_markdown(report: &ParityScoreReport) -> String {
         let mut md = String::new();
         md.push_str("# Replica Parity Scorecard\n\n");
-        md.push_str(&format!("### Overall Parity: **{:.1}%**\n\n", report.overall_score));
-        md.push_str(&format!("- **Feature Functional Parity**: {:.1}%\n", report.feature_score));
+        md.push_str(&format!(
+            "### Overall Parity: **{:.1}%**\n\n",
+            report.overall_score
+        ));
+        md.push_str(&format!(
+            "- **Feature Functional Parity**: {:.1}%\n",
+            report.feature_score
+        ));
         if let Some(v) = report.visual_score {
             md.push_str(&format!("- **Visual Layout Parity**: {:.1}%\n", v));
             md.push_str("- **Formula**: `80% Features + 20% Layout`\n");
         }
-        md.push_str("\n");
+        md.push('\n');
 
         md.push_str("## Breakdown by Priority\n\n");
         md.push_str("| Priority | Completed | Total | Completion % |\n");
@@ -204,21 +231,33 @@ impl DiffEngine {
             "| **Must (P0)** | {} | {} | {:.1}% |\n",
             report.must_completed,
             report.must_total,
-            if report.must_total > 0 { (report.must_completed as f64 / report.must_total as f64) * 100.0 } else { 100.0 }
+            if report.must_total > 0 {
+                (report.must_completed as f64 / report.must_total as f64) * 100.0
+            } else {
+                100.0
+            }
         ));
         md.push_str(&format!(
             "| **Should (P1)** | {} | {} | {:.1}% |\n",
             report.should_completed,
             report.should_total,
-            if report.should_total > 0 { (report.should_completed as f64 / report.should_total as f64) * 100.0 } else { 100.0 }
+            if report.should_total > 0 {
+                (report.should_completed as f64 / report.should_total as f64) * 100.0
+            } else {
+                100.0
+            }
         ));
         md.push_str(&format!(
             "| **Could (P2)** | {} | {} | {:.1}% |\n",
             report.could_completed,
             report.could_total,
-            if report.could_total > 0 { (report.could_completed as f64 / report.could_total as f64) * 100.0 } else { 100.0 }
+            if report.could_total > 0 {
+                (report.could_completed as f64 / report.could_total as f64) * 100.0
+            } else {
+                100.0
+            }
         ));
-        md.push_str("\n");
+        md.push('\n');
 
         if !report.missing_musts.is_empty() {
             md.push_str("### ⚠️ Blocking Must-Haves (P0 Missing)\n");

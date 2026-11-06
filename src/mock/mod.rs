@@ -129,9 +129,9 @@ Bun.serve({
                     return;
                 }
 
-                let matched = routes_clone.iter().find(|r| {
-                    r.method.eq_ignore_ascii_case(method) && path.starts_with(&r.path)
-                });
+                let matched = routes_clone
+                    .iter()
+                    .find(|r| r.method.eq_ignore_ascii_case(method) && path.starts_with(&r.path));
 
                 let (status, body) = if let Some(r) = matched {
                     let b = if r.output_schema.trim().starts_with('{') {
@@ -141,7 +141,10 @@ Bun.serve({
                     };
                     ("200 OK", b.to_string())
                 } else {
-                    ("404 Not Found", format!("{{\"error\":\"Endpoint not found\",\"path\":\"{}\"}}", path))
+                    (
+                        "404 Not Found",
+                        format!("{{\"error\":\"Endpoint not found\",\"path\":\"{}\"}}", path),
+                    )
                 };
 
                 println!("   [{}] {} {} -> {}", peer, method, path, status);
