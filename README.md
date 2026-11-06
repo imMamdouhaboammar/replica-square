@@ -1,62 +1,67 @@
-# Replica Square: Autonomous Agentic Clean-Room Reconstruction Engine
+# Replica Square: Autonomous Reverse-Engineering Architecture & Clean-Room Reconstruction System
 
-[![Rust](https://img.shields.io/badge/language-Rust-orange.svg)](https://www.rust-lang.org/)
+[![Rust CI](https://github.com/imMamdouhaboammar/replica-square/actions/workflows/ci.yml/badge.svg)](https://github.com/imMamdouhaboammar/replica-square/actions/workflows/ci.yml)
+[![Rust](https://img.shields.io/badge/language-Rust%201.99-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/Protocol-MCP%202024--11--05-green.svg)](https://modelcontextprotocol.io/)
 [![WCAG 2.2](https://img.shields.io/badge/WCAG-2.2%20AA%2FAAA-purple.svg)](https://www.w3.org/WAI/standards-guidelines/wcag/)
+[![REA](https://img.shields.io/badge/Architecture-REA%20v6.8.0-blueviolet.svg)](skills/rea/SKILL.md)
 
-> **Replica Square** is a production-grade, autonomous clean-room reverse-engineering and software reconstruction platform. It unifies the philosophies of **REA** (Reverse Engineer Anything), **Craft Anything**, **Fable**, and **Poteto Mode** into a high-performance native Rust engine with native **Model Context Protocol (MCP)** integration.
-
----
-
-## ⚡ Evolution: Beyond Legacy Prompt Skills
-
-The original [`jakeschincariol/replica-skill`](https://github.com/jakeschincariol/replica-skill) introduced 11 valuable conceptual workflows for cloning applications cleanly. However, it was strictly a passive collection of markdown prompts with toy Python scripts relying on standard-library image decompression and manual operator execution.
-
-**Replica Square** transforms this paradigm into a **fully agentic, autonomous engine**:
-
-| Capability | Legacy `replica-skill` | **Replica Square (`replica-agent`)** |
-|:---|:---|:---|
-| **Execution Model** | Passive markdown prompt copies | **Autonomous Rust engine + CLI + MCP stdio server** |
-| **Evidence Ledger** | Non-existent (assumed memory) | **Cryptographic SHA-256 evidence anchoring (REA spec)** |
-| **Parity Diffing** | Slow single-threaded Python PNG math | **SIMD-accelerated edge density grid comparison** |
-| **Schema Generation** | Generic prompt instructions | **Automated PostgreSQL DDL with UUID, RLS & B-Tree indexes** |
-| **Accessibility (WCAG)** | Basic script | **WCAG 2.2 Relative Luminance ($L$) & automated token export** |
-| **Market Grievance Mining**| Basic CSV string matching | **Weighted Bayesian complaint ranker with age-decay scoring** |
-| **Trademark Clearance** | Naive keyword grep | **Deep AST/identifier/file sweep with clean-room certificate** |
-| **AI Protocol** | None (chat-only) | **Native JSON-RPC 2.0 Model Context Protocol (MCP)** |
+> **Replica Square** is a unified, autonomous software reverse-engineering and clean-room reconstruction platform. It combines **REA** (Reverse Engineer Anything) deep forensic extraction with **Replica-Square** agentic clean-room synthesis into a single cohesive system running on native Rust with **Model Context Protocol (MCP)** stdio integration.
 
 ---
 
-## 🏛️ System Architecture
+## 🏛️ Unified System Architecture: REA + Replica-Square
+
+Replica Square implements an autonomous 4-phase pipeline connecting deep forensic extraction to production-grade clean-room delivery:
 
 ```mermaid
-flowchart LR
-    subgraph INGRESS ["Target Ingestion"]
-        T_URL["Web / API Surface"]
-        T_BIN["Binary / ASAR / APK"]
-        T_REV["Market Reviews (CSV/API)"]
+flowchart TD
+    subgraph PHASE1 ["Phase 1: REA Deep Forensic Extraction (Evidence Harvester)"]
+        T_BIN["Compiled Binaries<br/>(Mach-O / ELF / PE)"] --> REA_NATIVE["REA Native Inspector"]
+        T_JS["Electron ASAR & JS Bundles"] --> REA_AST["REA AST & Semantic Tracer"]
+        T_HAR["Network & API Captures (.har)"] --> REA_NET["HarFlowEngine"]
+        T_MOB["Android Packages (.apk)"] --> REA_APK["REA Mobile Analyzer"]
     end
 
-    subgraph ENGINE ["Replica Native Core Engine (Rust)"]
-        RECON["ReconEngine<br/>• SHA-256 Digesting<br/>• Surface Mapping"]
-        ENTREPRENEUR["EntrepreneurEngine<br/>• Grievance Scoring<br/>• Counter-Strategies"]
-        ARCHITECT["ArchitectEngine<br/>• PostgreSQL + RLS DDL<br/>• API Contracts"]
-        DESIGN["DesignEngine<br/>• WCAG 2.2 Formulas<br/>• Tailwind Compiler"]
-        DIFF["DiffEngine<br/>• 80/20 Parity Math<br/>• SIMD Edge Density"]
-        BRAND["BrandEngine<br/>• Deep AST & Hex Sweeper<br/>• Clean-Room Audit"]
-        LAUNCH["LaunchEngine<br/>• App Store Metadata Linter<br/>• Anti-Claim Guard"]
+    subgraph PHASE2 ["Phase 2: Cryptographic Evidence Ledger"]
+        REA_NATIVE & REA_AST & REA_NET & REA_APK --> LEDGER["evidence.json / recon-map.json<br/>• SHA-256 Digest Anchoring<br/>• Zero Speculation (Evidence vs Inference)"]
     end
 
-    subgraph INTERFACES ["Agent & User Interfaces"]
-        CLI["Standalone CLI<br/>(replica-agent)"]
-        MCP["MCP Server<br/>(stdio JSON-RPC)"]
-        AI["AI Agents<br/>(Gemini, Claude, Antigravity)"]
+    subgraph PHASE3 ["Phase 3: Clean-Room Product Synthesis (Replica-Square)"]
+        LEDGER --> ROUTER["Dynamic Intent Router<br/>(Deterministic RegexSet DAG)"]
+        ROUTER --> NEURAL["Neural Signal Bus & Auto-Handoff"]
+        NEURAL --> ENTRE["EntrepreneurEngine<br/>• Opportunity ROI Matrix<br/>• Pain Score Decay"]
+        NEURAL --> ARCH["ArchitectEngine<br/>• PostgreSQL + RLS DDL<br/>• Type-Safe API Contracts"]
+        ARCH --> DESIGN["DesignEngine<br/>• WCAG 2.2 Contrast (L)<br/>• Tailwind Tokens"]
+        ARCH --> MOCK["MockEngine<br/>• Embedded HTTP Server<br/>• Bun Export"]
+        ARCH --> E2E["E2eGenerator<br/>• Playwright Specs<br/>• Axe-Core A11y Tests"]
     end
 
-    INGRESS --> ENGINE
-    ENGINE --> INTERFACES
+    subgraph PHASE4 ["Phase 4: Clearance, Parity & Production Release"]
+        DESIGN & DIFF_ENG --> SWEEP["SweepEngine<br/>• Deep Trademark & Domain AST Sweep<br/>• Hex Color Clearance"]
+        ARCH --> DIFF_ENG["DiffEngine<br/>• 80/20 Parity Scoring<br/>• SIMD Edge Density Grid"]
+        SWEEP --> LAUNCH["LaunchEngine<br/>• App Store & Google Play Linter<br/>• Anti-Claim Regex Guard"]
+        LAUNCH --> PROD["✅ Verified Clean-Room Deliverable"]
+    end
 ```
+
+---
+
+## ⚡ The Ten Tool-Agents
+
+| Agent | Subcommand | Playbook | Purpose |
+|:---|:---|:---|:---|
+| **recon** | `replica-square recon` | [`skills/replica-square/playbooks/recon.md`](skills/replica-square/playbooks/recon.md) | Maps screens, flows, and creates cryptographic SHA-256 evidence ledger |
+| **har** | `replica-square har` | [`skills/replica-square/playbooks/har.md`](skills/replica-square/playbooks/har.md) | Parses network archives to extract endpoints, auth tokens, and JSON schemas |
+| **entrepreneur** | `replica-square entrepreneur` | [`skills/replica-square/playbooks/entrepreneur.md`](skills/replica-square/playbooks/entrepreneur.md) | Analyzes reviews, scores user grievances, and computes Day-1 Opportunity ROI Matrix |
+| **architect** | `replica-square architect` | [`skills/replica-square/playbooks/architect.md`](skills/replica-square/playbooks/architect.md) | Synthesizes PostgreSQL schema with Row-Level Security (RLS) & REST contracts |
+| **design** | `replica-square design` | [`skills/replica-square/playbooks/design.md`](skills/replica-square/playbooks/design.md) | Validates WCAG 2.2 relative luminance contrast ($L$) and exports Tailwind tokens |
+| **diff** | `replica-square diff` | [`skills/replica-square/playbooks/diff.md`](skills/replica-square/playbooks/diff.md) | Evaluates 80/20 functional feature parity and SIMD edge-density layout parity |
+| **sweep** | `replica-square sweep` | [`skills/replica-square/playbooks/sweep.md`](skills/replica-square/playbooks/sweep.md) | Recursively sweeps AST and codebase for competitor brand names, domains, and hex colors |
+| **launch** | `replica-square launch` | [`skills/replica-square/playbooks/launch.md`](skills/replica-square/playbooks/launch.md) | Audits App Store and Google Play metadata against policy and misleading claim rules |
+| **mock** | `replica-square mock` | [`skills/replica-square/playbooks/mock.md`](skills/replica-square/playbooks/mock.md) | Autonomous embedded HTTP mock server and Bun runner for zero-dependency local testing |
+| **test-gen** | `replica-square test-gen` | [`skills/replica-square/playbooks/test-gen.md`](skills/replica-square/playbooks/test-gen.md) | Synthesizes automated Playwright E2E journeys and Axe-Core accessibility test suites |
 
 ---
 
@@ -69,66 +74,90 @@ git clone https://github.com/imMamdouhaboammar/replica-square.git
 cd replica-square
 cargo build --release
 
-# The compiled binary is located at target/release/replica-agent
-./target/release/replica-agent --help
+# The compiled binary is located at target/release/replica-square
+./target/release/replica-square --help
 ```
 
-### Run Full Autonomous Reconstruction
+### Dynamic Routing & Autonomous Execution
 ```bash
-./target/release/replica-agent run \
-  --target Calendly \
+# Classify natural language intent into an execution DAG
+./target/release/replica-square route "Clone Calendly and check parity at 85%"
+
+# Execute complete autonomous pipeline with neural auto-handoff
+./target/release/replica-square run --prompt "Build a full clean-room clone of Calendly"
+```
+
+### Standard Pipeline
+```bash
+./target/release/replica-square run \
+  --target "Calendly" \
   --url https://calendly.com \
   --fail-under 80
 ```
 
 ---
 
-## 🔌 Connecting as an MCP Server
+## 🔌 Model Context Protocol (MCP) Integration
 
-Replica Square includes a native **Model Context Protocol (MCP)** server over `stdio`. Any AI agent (Gemini CLI, Claude Code, Cursor, Antigravity) can call its tools directly.
+Replica Square includes a native **Model Context Protocol (MCP)** server over `stdio` conforming to JSON-RPC 2.0. Any AI client (Gemini CLI, Claude Code, Cursor, Antigravity) can orchestrate tools natively.
 
 Add to your `claude_desktop_config.json` or `.gemini/config/mcp/servers.json`:
 
 ```json
 {
   "mcpServers": {
-    "replica-agent": {
-      "command": "/absolute/path/to/replica-square/target/release/replica-agent",
+    "replica-square": {
+      "command": "/absolute/path/to/replica-square/target/release/replica-square",
       "args": ["mcp"]
     }
   }
 }
 ```
 
-### Available MCP Tools
+### Exposed MCP Tools
 
-1. `replica_recon`: Harvests artifacts, computes cryptographic hashes, and maps target screens/flows.
-2. `replica_architect`: Generates production PostgreSQL schemas with RLS security policies and API contracts.
-3. `replica_design`: Validates WCAG 2.2 color contrast ratios and exports Tailwind CSS tokens.
-4. `replica_entrepreneur`: Mines customer reviews, computes pain weights, and formulates competitive counters.
-5. `replica_diff`: Calculates functional parity and layout similarity (0-100%).
-6. `replica_brand_sweep`: Scans codebase for competitor brand names, domains, and hex colors.
-7. `replica_launch_audit`: Lints store listing metadata against Apple and Google policies.
+1. `replica_route`: Analyzes natural language prompt and compiles execution DAG.
+2. `replica_orchestrate`: Runs dynamic multi-agent DAG with neural bus and auto-handoff.
+3. `replica_recon`: Harvests artifacts, computes SHA-256 hashes, and maps screens/flows.
+4. `replica_architect`: Generates production PostgreSQL schemas with RLS and REST contracts.
+5. `replica_design`: Validates WCAG 2.2 color contrast ratios and exports Tailwind CSS tokens.
+6. `replica_entrepreneur`: Mines customer reviews, computes pain weights, and ranks Day-1 ROI.
+7. `replica_diff`: Calculates functional feature parity and visual similarity (0-100%).
+8. `replica_brand_sweep`: Scans codebase for competitor brand names, domains, and hex colors.
+9. `replica_launch_audit`: Lints store listing metadata against Apple and Google policies.
 
 ---
 
-## 🧪 Verification & Tests
+## 🧪 Verification & Deterministic Test Suite
 
-Run the deterministic test suite:
+Run the full test pyramid:
 ```bash
 cargo test
 ```
 
-All 7 test suites verify:
+All 39 automated tests verify:
 - Exact WCAG 2.2 relative luminance and contrast calculations.
 - Weighted feature parity scoring with exclusion of skip/custom extensions.
 - Recursive trademark clean-room sweep with false-positive prevention.
 - Apple App Store & Google Play metadata bounds and anti-claim regexes.
-- Cryptographic SHA-256 evidence integrity.
-- PostgreSQL DDL generation with RLS security rules.
+- Cryptographic SHA-256 evidence integrity and REA compliance.
+- PostgreSQL DDL generation with RLS security policies.
+- HAR network traffic parsing, endpoint extraction, and JSON schema inference.
+- Autonomous embedded HTTP mock server and Bun runner generation.
+- Playwright E2E test spec generation with AxeBuilder accessibility assertions.
+- Dynamic RegexSet router intent classification and DAG scheduling.
+- Neural graph signal propagation, warning passthroughs, and Fable circuit breaker.
 
 ---
 
-## 📜 License
+## 📜 Three Constitutional Invariants
+
+1. **Clean-Room Invariant**: Never copy proprietary source code, trademarks, visual assets, or confidential APIs. Inspect observable behavior and public contracts exclusively.
+2. **Evidence-First Invariant**: Every architectural claim cites a verifiable SHA-256 digest, public URL, or network capture. Speculation is strictly separated from evidence.
+3. **Gate-Must-Pass Invariant**: Downstream releases are strictly blocked if feature parity is below the threshold, any brand violation exists, or store listing errors remain.
+
+---
+
+## 📄 License
 
 MIT License. Clean-room reverse engineering respects software functionality, user interaction patterns, and public contracts, without reproducing proprietary source code or assets.

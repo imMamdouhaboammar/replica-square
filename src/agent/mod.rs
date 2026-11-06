@@ -154,7 +154,9 @@ fn err_output(kind: &AgentKind, elapsed_ms: u64, err: &str) -> AgentOutput {
 pub struct ReconAgent;
 
 impl ToolAgent for ReconAgent {
-    fn kind(&self) -> AgentKind { AgentKind::Recon }
+    fn kind(&self) -> AgentKind {
+        AgentKind::Recon
+    }
 
     fn gate_satisfied(&self, ctx: &AgentContext) -> bool {
         ctx.replica_dir.join("recon.md").exists()
@@ -168,23 +170,22 @@ impl ToolAgent for ReconAgent {
 
         let evidence = ReconEngine::harvest_evidence(&ctx.workspace)?;
 
-        let screens = vec![
-            ReconScreen {
-                screen_id: "S-HOME".into(), title: "Main Dashboard".into(),
-                route_path: "/".into(), viewport: "1440x900".into(),
-                interactive_elements: vec!["Create Event".into(), "Share Link".into()],
-                network_calls: vec!["GET /api/events".into()],
-                states: vec!["empty".into(), "populated".into()],
-            },
-        ];
-        let flows = vec![
-            ReconFlow {
-                flow_id: "F-BOOKING".into(), name: "Guest Booking Journey".into(),
-                step_screens: vec!["S-HOME".into()],
-                happy_path: vec!["Open link".into(), "Pick slot".into(), "Confirm".into()],
-                edge_cases: vec!["Concurrency clash".into()],
-            },
-        ];
+        let screens = vec![ReconScreen {
+            screen_id: "S-HOME".into(),
+            title: "Main Dashboard".into(),
+            route_path: "/".into(),
+            viewport: "1440x900".into(),
+            interactive_elements: vec!["Create Event".into(), "Share Link".into()],
+            network_calls: vec!["GET /api/events".into()],
+            states: vec!["empty".into(), "populated".into()],
+        }];
+        let flows = vec![ReconFlow {
+            flow_id: "F-BOOKING".into(),
+            name: "Guest Booking Journey".into(),
+            step_screens: vec!["S-HOME".into()],
+            happy_path: vec!["Open link".into(), "Pick slot".into(), "Confirm".into()],
+            edge_cases: vec!["Concurrency clash".into()],
+        }];
         let constraints = vec![
             "Zero double-booking (serializable tx)".into(),
             "UTC-only timestamps".into(),
@@ -209,13 +210,27 @@ impl ToolAgent for ReconAgent {
 
         let elapsed_ms = t.elapsed().as_millis() as u64;
         let mut artifacts = HashMap::new();
-        artifacts.insert("recon_md".into(), ctx.replica_dir.join("recon.md").display().to_string());
-        artifacts.insert("recon_map".into(), ctx.replica_dir.join("recon-map.json").display().to_string());
-        artifacts.insert("features_csv".into(), ctx.replica_dir.join("features.csv").display().to_string());
+        artifacts.insert(
+            "recon_md".into(),
+            ctx.replica_dir.join("recon.md").display().to_string(),
+        );
+        artifacts.insert(
+            "recon_map".into(),
+            ctx.replica_dir.join("recon-map.json").display().to_string(),
+        );
+        artifacts.insert(
+            "features_csv".into(),
+            ctx.replica_dir.join("features.csv").display().to_string(),
+        );
 
         Ok(ok_output(
-            &self.kind(), elapsed_ms, artifacts,
-            format!("Recon complete: {} evidence items", recon_map.evidence.len()),
+            &self.kind(),
+            elapsed_ms,
+            artifacts,
+            format!(
+                "Recon complete: {} evidence items",
+                recon_map.evidence.len()
+            ),
             serde_json::json!({ "evidence_count": recon_map.evidence.len(), "screen_count": recon_map.screens.len() }),
         ))
     }
@@ -226,7 +241,9 @@ impl ToolAgent for ReconAgent {
 pub struct EntrepreneurAgent;
 
 impl ToolAgent for EntrepreneurAgent {
-    fn kind(&self) -> AgentKind { AgentKind::Entrepreneur }
+    fn kind(&self) -> AgentKind {
+        AgentKind::Entrepreneur
+    }
 
     fn gate_satisfied(&self, ctx: &AgentContext) -> bool {
         ctx.replica_dir.join("feedback.md").exists()
@@ -251,10 +268,15 @@ impl ToolAgent for EntrepreneurAgent {
         let elapsed_ms = t.elapsed().as_millis() as u64;
         let theme_count = feedback.len();
         let mut artifacts = HashMap::new();
-        artifacts.insert("feedback_md".into(), ctx.replica_dir.join("feedback.md").display().to_string());
+        artifacts.insert(
+            "feedback_md".into(),
+            ctx.replica_dir.join("feedback.md").display().to_string(),
+        );
 
         Ok(ok_output(
-            &self.kind(), elapsed_ms, artifacts,
+            &self.kind(),
+            elapsed_ms,
+            artifacts,
             format!("Entrepreneur analysis: {theme_count} grievance themes identified"),
             serde_json::json!({ "theme_count": theme_count }),
         ))
@@ -266,7 +288,9 @@ impl ToolAgent for EntrepreneurAgent {
 pub struct ArchitectAgent;
 
 impl ToolAgent for ArchitectAgent {
-    fn kind(&self) -> AgentKind { AgentKind::Architect }
+    fn kind(&self) -> AgentKind {
+        AgentKind::Architect
+    }
 
     fn gate_satisfied(&self, ctx: &AgentContext) -> bool {
         ctx.replica_dir.join("architecture.md").exists()
@@ -280,7 +304,14 @@ impl ToolAgent for ArchitectAgent {
             let raw = fs::read_to_string(&recon_map_path)?;
             serde_json::from_str(&raw)?
         } else {
-            ReconEngine::build_recon_map(&ctx.target_name, ctx.target_url.clone(), vec![], vec![], vec![], vec![])
+            ReconEngine::build_recon_map(
+                &ctx.target_name,
+                ctx.target_url.clone(),
+                vec![],
+                vec![],
+                vec![],
+                vec![],
+            )
         };
 
         let plan = ArchitectEngine::plan_from_recon(&recon_map);
@@ -294,11 +325,22 @@ impl ToolAgent for ArchitectAgent {
         let table_count = plan.tables.len();
         let route_count = plan.routes.len();
         let mut artifacts = HashMap::new();
-        artifacts.insert("architecture_md".into(), ctx.replica_dir.join("architecture.md").display().to_string());
-        artifacts.insert("schema_sql".into(), ctx.replica_dir.join("schema.sql").display().to_string());
+        artifacts.insert(
+            "architecture_md".into(),
+            ctx.replica_dir
+                .join("architecture.md")
+                .display()
+                .to_string(),
+        );
+        artifacts.insert(
+            "schema_sql".into(),
+            ctx.replica_dir.join("schema.sql").display().to_string(),
+        );
 
         Ok(ok_output(
-            &self.kind(), elapsed_ms, artifacts,
+            &self.kind(),
+            elapsed_ms,
+            artifacts,
             format!("Architecture generated: {table_count} tables, {route_count} API routes"),
             serde_json::json!({ "table_count": table_count, "route_count": route_count }),
         ))
@@ -310,7 +352,9 @@ impl ToolAgent for ArchitectAgent {
 pub struct DesignAgent;
 
 impl ToolAgent for DesignAgent {
-    fn kind(&self) -> AgentKind { AgentKind::Design }
+    fn kind(&self) -> AgentKind {
+        AgentKind::Design
+    }
 
     fn gate_satisfied(&self, ctx: &AgentContext) -> bool {
         ctx.replica_dir.join("tailwind.tokens.js").exists()
@@ -334,19 +378,39 @@ impl ToolAgent for DesignAgent {
         fs::write(ctx.replica_dir.join("tokens.json"), &tokens_json)?;
         fs::write(ctx.replica_dir.join("tailwind.tokens.js"), &tailwind_js)?;
 
-        let aa_failures = contrast_results.iter().filter(|r| !r.normal_aa_pass).count();
+        let aa_failures = contrast_results
+            .iter()
+            .filter(|r| !r.normal_aa_pass)
+            .count();
         let elapsed_ms = t.elapsed().as_millis() as u64;
         let mut artifacts = HashMap::new();
-        artifacts.insert("tailwind_js".into(), ctx.replica_dir.join("tailwind.tokens.js").display().to_string());
-        artifacts.insert("tokens_json".into(), ctx.replica_dir.join("tokens.json").display().to_string());
+        artifacts.insert(
+            "tailwind_js".into(),
+            ctx.replica_dir
+                .join("tailwind.tokens.js")
+                .display()
+                .to_string(),
+        );
+        artifacts.insert(
+            "tokens_json".into(),
+            ctx.replica_dir.join("tokens.json").display().to_string(),
+        );
 
-        let event = if aa_failures > 0 { SignalEvent::Warning } else { SignalEvent::Complete };
+        let event = if aa_failures > 0 {
+            SignalEvent::Warning
+        } else {
+            SignalEvent::Complete
+        };
         Ok(AgentOutput {
             agent: self.kind().id().to_string(),
             success: true,
             elapsed_ms,
             artifacts,
-            summary: format!("Design audit: {}/{} pairs pass WCAG AA", contrast_results.len() - aa_failures, contrast_results.len()),
+            summary: format!(
+                "Design audit: {}/{} pairs pass WCAG AA",
+                contrast_results.len() - aa_failures,
+                contrast_results.len()
+            ),
             signal: NeuralSignal {
                 from_agent: self.kind().id().to_string(),
                 event,
@@ -367,8 +431,16 @@ fn default_tokens() -> DesignTokens {
         typography: Default::default(),
         spacing: Default::default(),
         pairs: vec![
-            ContrastPair { fg_name: "text-primary".into(), bg_name: "bg-surface".into(), level: Some("normal".into()) },
-            ContrastPair { fg_name: "text-inverse".into(), bg_name: "brand-primary".into(), level: Some("normal".into()) },
+            ContrastPair {
+                fg_name: "text-primary".into(),
+                bg_name: "bg-surface".into(),
+                level: Some("normal".into()),
+            },
+            ContrastPair {
+                fg_name: "text-inverse".into(),
+                bg_name: "brand-primary".into(),
+                level: Some("normal".into()),
+            },
         ],
     }
 }
@@ -378,7 +450,9 @@ fn default_tokens() -> DesignTokens {
 pub struct DiffAgent;
 
 impl ToolAgent for DiffAgent {
-    fn kind(&self) -> AgentKind { AgentKind::Diff }
+    fn kind(&self) -> AgentKind {
+        AgentKind::Diff
+    }
 
     fn gate_satisfied(&self, ctx: &AgentContext) -> bool {
         ctx.replica_dir.join("parity.md").exists()
@@ -393,16 +467,26 @@ impl ToolAgent for DiffAgent {
 
         let elapsed_ms = t.elapsed().as_millis() as u64;
         let score = report.overall_score;
-        let event = if score < ctx.fail_under_parity { SignalEvent::Warning } else { SignalEvent::Complete };
+        let event = if score < ctx.fail_under_parity {
+            SignalEvent::Warning
+        } else {
+            SignalEvent::Complete
+        };
         let mut artifacts = HashMap::new();
-        artifacts.insert("parity_md".into(), ctx.replica_dir.join("parity.md").display().to_string());
+        artifacts.insert(
+            "parity_md".into(),
+            ctx.replica_dir.join("parity.md").display().to_string(),
+        );
 
         Ok(AgentOutput {
             agent: self.kind().id().to_string(),
             success: true,
             elapsed_ms,
             artifacts,
-            summary: format!("Parity score: {score:.1}% (threshold: {:.1}%)", ctx.fail_under_parity),
+            summary: format!(
+                "Parity score: {score:.1}% (threshold: {:.1}%)",
+                ctx.fail_under_parity
+            ),
             signal: NeuralSignal {
                 from_agent: self.kind().id().to_string(),
                 event,
@@ -422,7 +506,9 @@ impl ToolAgent for DiffAgent {
 pub struct SweepAgent;
 
 impl ToolAgent for SweepAgent {
-    fn kind(&self) -> AgentKind { AgentKind::Sweep }
+    fn kind(&self) -> AgentKind {
+        AgentKind::Sweep
+    }
 
     fn gate_satisfied(&self, ctx: &AgentContext) -> bool {
         ctx.replica_dir.join("cleanroom-report.md").exists()
@@ -441,9 +527,19 @@ impl ToolAgent for SweepAgent {
 
         let elapsed_ms = t.elapsed().as_millis() as u64;
         let violations = report.total_violations;
-        let event = if !report.passed { SignalEvent::Failed } else { SignalEvent::Complete };
+        let event = if !report.passed {
+            SignalEvent::Failed
+        } else {
+            SignalEvent::Complete
+        };
         let mut artifacts = HashMap::new();
-        artifacts.insert("cleanroom_report".into(), ctx.replica_dir.join("cleanroom-report.md").display().to_string());
+        artifacts.insert(
+            "cleanroom_report".into(),
+            ctx.replica_dir
+                .join("cleanroom-report.md")
+                .display()
+                .to_string(),
+        );
 
         Ok(AgentOutput {
             agent: self.kind().id().to_string(),
@@ -469,7 +565,9 @@ impl ToolAgent for SweepAgent {
 pub struct LaunchAgent;
 
 impl ToolAgent for LaunchAgent {
-    fn kind(&self) -> AgentKind { AgentKind::Launch }
+    fn kind(&self) -> AgentKind {
+        AgentKind::Launch
+    }
 
     fn gate_satisfied(&self, ctx: &AgentContext) -> bool {
         ctx.replica_dir.join("listing-audit.md").exists()
@@ -487,7 +585,11 @@ impl ToolAgent for LaunchAgent {
                 let raw = fs::read_to_string(&listing_path)?;
                 serde_json::from_str(&raw)?
             } else {
-                StoreMetadata { avoid: Some(ctx.avoid_names.clone()), app_store: None, google_play: None }
+                StoreMetadata {
+                    avoid: Some(ctx.avoid_names.clone()),
+                    app_store: None,
+                    google_play: None,
+                }
             }
         };
 
@@ -498,9 +600,19 @@ impl ToolAgent for LaunchAgent {
         let elapsed_ms = t.elapsed().as_millis() as u64;
         let errors = audit.errors.len();
         let warnings = audit.warnings.len();
-        let event = if !audit.passed { SignalEvent::Failed } else { SignalEvent::Complete };
+        let event = if !audit.passed {
+            SignalEvent::Failed
+        } else {
+            SignalEvent::Complete
+        };
         let mut artifacts = HashMap::new();
-        artifacts.insert("listing_audit".into(), ctx.replica_dir.join("listing-audit.md").display().to_string());
+        artifacts.insert(
+            "listing_audit".into(),
+            ctx.replica_dir
+                .join("listing-audit.md")
+                .display()
+                .to_string(),
+        );
 
         Ok(AgentOutput {
             agent: self.kind().id().to_string(),
@@ -522,12 +634,12 @@ impl ToolAgent for LaunchAgent {
 /// Return the canonical agent for a given AgentKind.
 pub fn agent_for(kind: &AgentKind) -> Box<dyn ToolAgent> {
     match kind {
-        AgentKind::Recon        => Box::new(ReconAgent),
+        AgentKind::Recon => Box::new(ReconAgent),
         AgentKind::Entrepreneur => Box::new(EntrepreneurAgent),
-        AgentKind::Architect    => Box::new(ArchitectAgent),
-        AgentKind::Design       => Box::new(DesignAgent),
-        AgentKind::Diff         => Box::new(DiffAgent),
-        AgentKind::Sweep        => Box::new(SweepAgent),
-        AgentKind::Launch       => Box::new(LaunchAgent),
+        AgentKind::Architect => Box::new(ArchitectAgent),
+        AgentKind::Design => Box::new(DesignAgent),
+        AgentKind::Diff => Box::new(DiffAgent),
+        AgentKind::Sweep => Box::new(SweepAgent),
+        AgentKind::Launch => Box::new(LaunchAgent),
     }
 }

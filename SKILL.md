@@ -2,13 +2,13 @@
 name: replica-square
 description: >
   Fully agentic, clean-room reverse-engineering and software reconstruction engine.
-  Features a dynamic intent router, 7 autonomous tool-agents, neural signal graph,
-  and auto-handoff mechanism with circuit-breaker protection.
-  Studies any application, synthesizes a production-grade clone architecture, verifies parity,
-  and clears all trademark and store-listing gates entirely without touching proprietary code or assets.
+  Orchestrates seven autonomous tools (recon, entrepreneur, architect, design, diff, sweep, launch)
+  to study any app, synthesize a production-grade clone architecture, verify parity, and clear
+  all trademark and store-listing gates — entirely without touching proprietary code or assets.
   Triggered by: "clone this app", "reverse engineer X", "build my own version of X",
   "replica recon", "replica architect", "parity check", "clean-room sweep", "app store audit",
   or "run the full replica pipeline".
+  Do NOT use for general code review, single-file edits, or non-reconstruction tasks.
 version: "2.0.0"
 author: "Replica-Square Contributors"
 license: "MIT"
@@ -21,9 +21,9 @@ hosts:
   - universal
 metadata:
   engine: "Rust 1.99 (native binary + JSON-RPC 2.0 MCP stdio server)"
-  tools: 7
-  playbooks: 7
-  tests: 34
+  tools: 10
+  playbooks: 10
+  tests: 39
 ---
 
 # Replica-Square: Fully Agentic Clean-Room Reconstruction Engine
@@ -38,17 +38,20 @@ $$\text{Intent (Any Prompt)} \xrightarrow{\text{Dynamic Router}} \text{Execution
 
 ---
 
-## The Seven Tool-Agents
+## The Ten Tool-Agents
 
 | Agent | CLI | Playbook | What it does |
 |:---|:---|:---|:---|
-| **recon** | `replica-square recon` | [`skills/replica-square/playbooks/recon.md`](skills/replica-square/playbooks/recon.md) | Maps screens, flows, data model, and cryptographic evidence ledger |
-| **entrepreneur** | `replica-square entrepreneur` | [`skills/replica-square/playbooks/entrepreneur.md`](skills/replica-square/playbooks/entrepreneur.md) | Mines user pain, ranks themes, formulates counter-features |
-| **architect** | `replica-square architect` | [`skills/replica-square/playbooks/architect.md`](skills/replica-square/playbooks/architect.md) | Synthesizes PostgreSQL schema, API contracts, build order |
-| **design** | `replica-square design` | [`skills/replica-square/playbooks/design.md`](skills/replica-square/playbooks/design.md) | WCAG 2.2 color validation, Tailwind token export |
-| **diff** | `replica-square diff` | [`skills/replica-square/playbooks/diff.md`](skills/replica-square/playbooks/diff.md) | 80/20 feature-visual parity scoring |
-| **sweep** | `replica-square sweep` | [`skills/replica-square/playbooks/sweep.md`](skills/replica-square/playbooks/sweep.md) | Trademark, domain, and hex-color clean-room sweep |
-| **launch** | `replica-square launch` | [`skills/replica-square/playbooks/launch.md`](skills/replica-square/playbooks/launch.md) | App Store and Google Play metadata linter |
+| **recon** | `replica-square recon` | [`playbooks/recon.md`](playbooks/recon.md) | Maps screens, flows, data model, and cryptographic evidence ledger |
+| **har** | `replica-square har` | [`playbooks/har.md`](playbooks/har.md) | Parses HAR captures to infer API endpoints, auth, and JSON schemas (0 token bloat) |
+| **entrepreneur** | `replica-square entrepreneur` | [`playbooks/entrepreneur.md`](playbooks/entrepreneur.md) | Mines user pain, ranks themes, and computes Day-1 Opportunity ROI Matrix |
+| **architect** | `replica-square architect` | [`playbooks/architect.md`](playbooks/architect.md) | Synthesizes PostgreSQL schema, API contracts, build order |
+| **design** | `replica-square design` | [`playbooks/design.md`](playbooks/design.md) | WCAG 2.2 color validation, Tailwind token export |
+| **diff** | `replica-square diff` | [`playbooks/diff.md`](playbooks/diff.md) | 80/20 feature-visual parity scoring |
+| **sweep** | `replica-square sweep` | [`playbooks/sweep.md`](playbooks/sweep.md) | Trademark, domain, and hex-color clean-room sweep |
+| **launch** | `replica-square launch` | [`playbooks/launch.md`](playbooks/launch.md) | App Store and Google Play metadata linter |
+| **mock** | `replica-square mock` | [`playbooks/mock.md`](playbooks/mock.md) | Autonomous embedded HTTP mock server & Bun export for instant day-1 testing |
+| **test-gen** | `replica-square test-gen` | [`playbooks/test-gen.md`](playbooks/test-gen.md) | Generates automated Playwright E2E and Axe-Core accessibility test specs |
 
 ---
 
@@ -61,10 +64,14 @@ flowchart TD
 
     subgraph ENGINE ["Auto-Handoff Engine & Neural Bus"]
         DAG --> RECON["ReconAgent<br/>Evidence Harvester"]
-        RECON -->|"Complete (⚠️ passthrough)"| ENTRE["EntrepreneurAgent<br/>Market Pain Miner"]
+        DAG --> HAR["HarFlowEngine<br/>API & Auth Inferrer"]
+        RECON -->|"Complete (⚠️ passthrough)"| ENTRE["EntrepreneurAgent<br/>Opportunity ROI Matrix"]
         RECON -->|"Complete (Strict Gate)"| ARCH["ArchitectAgent<br/>PostgreSQL & API Spec"]
+        HAR --> ARCH
         ARCH -->|"Complete"| DESIGN["DesignAgent<br/>WCAG Token Auditor"]
         ARCH -->|"Complete"| DIFF["DiffAgent<br/>Parity Scorer"]
+        ARCH -->|"Complete"| MOCK["MockEngine<br/>Live HTTP Mock Server"]
+        ARCH -->|"Complete"| TESTGEN["E2eGenerator<br/>Playwright + Axe-Core Specs"]
         DESIGN -->|"Complete (⚠️ passthrough)"| SWEEP["SweepAgent<br/>Clean-Room Clearance"]
         DIFF -->|"Complete (⚠️ passthrough)"| SWEEP
         SWEEP -->|"Complete (Strict Gate)"| LAUNCH["LaunchAgent<br/>Store Listing Linter"]
@@ -75,6 +82,14 @@ flowchart TD
     LAUNCH --> OUT["✅ Production-Ready Deliverable"]
     ENGINE -.->|"Live State & Signals"| TRACE["replica/handoff-trace.md"]
 ```
+
+---
+
+## Three Constitutional Invariants
+
+1. **Clean-Room Invariant**: Never copy source code, trademarks, assets, proprietary APIs, or copyrighted content. Study observable behavior and public contracts only.
+2. **Evidence-First Invariant**: Every architectural claim cites a SHA-256 digest, URL, or DOM/network trace. Never speculate without evidence.
+3. **Gate-Must-Pass Invariant**: The pipeline is blocked at parity < 80%, any sweep violation, or any store listing error. No exceptions.
 
 ---
 
@@ -89,12 +104,55 @@ replica-square route "Clone Calendly and check parity at 85%"
 replica-square run --prompt "Build a full clean-room clone of Calendly"
 ```
 
-### 2. Standard Pipeline
+### 2. Full Standard Pipeline
 ```bash
 replica-square run --target "Calendly" --url https://calendly.com --fail-under 80
 ```
 
-### 3. Model Context Protocol (MCP) Server
+### 3. Individual Tool Calls
+```bash
+replica-square recon https://app.example.com --out replica/
+replica-square har network-traffic.har --out replica/
+replica-square entrepreneur replica/reviews.csv
+replica-square architect replica/recon-map.json
+replica-square mock --port 3000
+replica-square test-gen --base-url http://localhost:3000
+replica-square design replica/tokens.json
+replica-square diff replica/features.csv --fail-under 80
+replica-square sweep . --avoid "Competitor" --domains competitor.com --colors "#006bff"
+replica-square launch replica/listing.json
+```
+
+### 4. As MCP Server (for AI Agents)
 ```bash
 replica-square mcp
 ```
+
+Tools exposed over JSON-RPC 2.0 stdio:
+- `replica_route`: Analyzes natural language prompt and returns DAG
+- `replica_orchestrate`: Executes dynamic multi-agent DAG with neural signal bus
+- `replica_recon`, `replica_architect`, `replica_design`, `replica_entrepreneur`, `replica_diff`, `replica_brand_sweep`, `replica_launch_audit`
+
+---
+
+## Reference Index
+
+| Path | Contents |
+|:---|:---|
+| [`references/neural-connections.md`](references/neural-connections.md) | Neural topology, signal protocol, and warning passthroughs |
+| [`references/auto-handoff.md`](references/auto-handoff.md) | Auto-handoff engine, artifact gates, and circuit breaker |
+| [`references/pipeline-state.md`](references/pipeline-state.md) | SOT state machine and artifact naming |
+| [`references/evidence-contract.md`](references/evidence-contract.md) | Evidence schema, SHA-256 anchoring, REA compliance |
+| [`references/parity-formula.md`](references/parity-formula.md) | 80/20 parity formula derivation and weighting |
+| [`references/legal-boundaries.md`](references/legal-boundaries.md) | Clean-room legal scope and skip-row rules |
+| [`playbooks/recon.md`](playbooks/recon.md) | Recon tool — step-by-step agent instructions |
+| [`playbooks/har.md`](playbooks/har.md) | HAR tool — network capture parsing & schema inference |
+| [`playbooks/entrepreneur.md`](playbooks/entrepreneur.md) | Entrepreneur tool — review mining & Opportunity ROI Matrix |
+| [`playbooks/architect.md`](playbooks/architect.md) | Architect tool — schema DDL and API contract generation |
+| [`playbooks/mock.md`](playbooks/mock.md) | Mock tool — embedded HTTP server & Bun runner |
+| [`playbooks/test-gen.md`](playbooks/test-gen.md) | Test-gen tool — Playwright & Axe-Core contract tests |
+| [`playbooks/design.md`](playbooks/design.md) | Design tool — WCAG 2.2 and token export |
+| [`playbooks/diff.md`](playbooks/diff.md) | Diff tool — parity scoring methodology |
+| [`playbooks/sweep.md`](playbooks/sweep.md) | Sweep tool — trademark clean-room certification |
+| [`playbooks/launch.md`](playbooks/launch.md) | Launch tool — store metadata compliance |
+| [`evals/triggers.md`](evals/triggers.md) | Positive, negative, and pressure-test cases |

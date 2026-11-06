@@ -80,10 +80,7 @@ impl HandoffEngine {
     ///
     /// `dag` is the topologically-ordered list produced by the Router.
     /// Agents are run in dependency order; skippable nodes are skipped if gates pass.
-    pub fn execute_dag(
-        dag: &[DagNode],
-        ctx: &AgentContext,
-    ) -> Result<PipelineResult> {
+    pub fn execute_dag(dag: &[DagNode], ctx: &AgentContext) -> Result<PipelineResult> {
         fs::create_dir_all(&ctx.replica_dir)?;
 
         let mut graph = NeuralGraph::full_pipeline();
@@ -96,9 +93,7 @@ impl HandoffEngine {
         let mut circuit_tripped = false;
 
         // Build a lookup map from id → DagNode
-        let node_map: HashMap<String, &DagNode> = dag.iter()
-            .map(|n| (n.id.clone(), n))
-            .collect();
+        let node_map: HashMap<String, &DagNode> = dag.iter().map(|n| (n.id.clone(), n)).collect();
 
         // Process in topological order (dag is already sorted by router)
         let ordered_ids: Vec<String> = dag.iter().map(|n| n.id.clone()).collect();
@@ -111,7 +106,10 @@ impl HandoffEngine {
 
             // ── Circuit breaker ──────────────────────────────────────────
             if circuit.is_open() {
-                eprintln!("⚡ [CircuitBreaker] Halted at `{agent_id}` — failure streak ≥ {}.", CircuitBreaker::THRESHOLD);
+                eprintln!(
+                    "⚡ [CircuitBreaker] Halted at `{agent_id}` — failure streak ≥ {}.",
+                    CircuitBreaker::THRESHOLD
+                );
                 circuit_tripped = true;
                 break 'outer;
             }
@@ -120,7 +118,9 @@ impl HandoffEngine {
             if !graph.predecessors_satisfied(agent_id) {
                 // A predecessor failed without warning passthrough — skip downstream
                 eprintln!("⏭️  [Handoff] Skipping `{agent_id}` — predecessor not satisfied.");
-                graph.node_states.insert(agent_id.clone(), NodeState::Skipped);
+                graph
+                    .node_states
+                    .insert(agent_id.clone(), NodeState::Skipped);
                 agents_skipped += 1;
                 continue;
             }
@@ -132,7 +132,9 @@ impl HandoffEngine {
             // ── Gate check (skip if skippable and artifacts exist) ───────
             if dag_node.skippable && agent.gate_satisfied(ctx) {
                 eprintln!("⏭️  [Gate] `{agent_id}` gate satisfied — skipping.");
-                graph.node_states.insert(agent_id.clone(), NodeState::Skipped);
+                graph
+                    .node_states
+                    .insert(agent_id.clone(), NodeState::Skipped);
 
                 // Emit skip signal so downstream unblocks correctly
                 use crate::agent::NeuralSignal;
@@ -143,12 +145,21 @@ impl HandoffEngine {
                 });
 
                 agents_skipped += 1;
-                record_handoff(&mut handoffs, agent_id, dag, HandoffReason::GateAlreadySatisfied, ctx);
+                record_handoff(
+                    &mut handoffs,
+                    agent_id,
+                    dag,
+                    HandoffReason::GateAlreadySatisfied,
+                    ctx,
+                );
                 continue;
             }
 
             // ── Dispatch ─────────────────────────────────────────────────
-            eprintln!("🚀 [Handoff] Dispatching `{}`  — {}", agent_id, dag_node.label);
+            eprintln!(
+                "🚀 [Handoff] Dispatching `{}`  — {}",
+                agent_id, dag_node.label
+            );
             graph.mark_running(agent_id);
 
             match agent.run(ctx) {
@@ -166,7 +177,13 @@ impl HandoffEngine {
                         circuit.record_success();
                         agents_run += 1;
                         // Emit handoff trace for each downstream
-                        record_handoff(&mut handoffs, agent_id, dag, HandoffReason::NormalCompletion, ctx);
+                        record_handoff(
+                            &mut handoffs,
+                            agent_id,
+                            dag,
+                            HandoffReason::NormalCompletion,
+                            ctx,
+                        );
                     }
 
                     outputs.insert(agent_id.clone(), output);
@@ -210,14 +227,14 @@ impl HandoffEngine {
 
 fn kind_from_id(id: &str) -> AgentKind {
     match id {
-        "recon"        => AgentKind::Recon,
+        "recon" => AgentKind::Recon,
         "entrepreneur" => AgentKind::Entrepreneur,
-        "architect"    => AgentKind::Architect,
-        "design"       => AgentKind::Design,
-        "diff"         => AgentKind::Diff,
-        "sweep"        => AgentKind::Sweep,
-        "launch"       => AgentKind::Launch,
-        _              => AgentKind::Recon, // safe fallback
+        "architect" => AgentKind::Architect,
+        "design" => AgentKind::Design,
+        "diff" => AgentKind::Diff,
+        "sweep" => AgentKind::Sweep,
+        "launch" => AgentKind::Launch,
+        _ => AgentKind::Recon, // safe fallback
     }
 }
 
@@ -231,12 +248,13 @@ fn record_handoff(
     // Find all downstream nodes that depend on from_id
     for node in dag {
         if node.depends_on.contains(&from_id.to_string()) {
-            let artifacts: Vec<String> = ctx.replica_dir
+            let artifacts: Vec<String> = ctx
+                .replica_dir
                 .read_dir()
                 .map(|rd| {
                     rd.filter_map(|e| e.ok())
-                      .map(|e| e.file_name().to_string_lossy().to_string())
-                      .collect()
+                        .map(|e| e.file_name().to_string_lossy().to_string())
+                        .collect()
                 })
                 .unwrap_or_default();
 
@@ -262,9 +280,9 @@ fn render_trace(handoffs: &[HandoffRecord], graph: &NeuralGraph) -> String {
     } else {
         for (i, h) in handoffs.iter().enumerate() {
             let reason = match h.reason {
-                HandoffReason::NormalCompletion    => "✅ Normal completion",
+                HandoffReason::NormalCompletion => "✅ Normal completion",
                 HandoffReason::GateAlreadySatisfied => "⏭️  Gate satisfied (skipped)",
-                HandoffReason::WarningPassthrough  => "⚠️  Warning passthrough",
+                HandoffReason::WarningPassthrough => "⚠️  Warning passthrough",
             };
             md.push_str(&format!(
                 "{}. `{}` → `{}`  \n   Reason: {}  \n   Artifacts: {}\n\n",

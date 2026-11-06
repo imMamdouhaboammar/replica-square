@@ -191,7 +191,13 @@ async fn main() -> anyhow::Result<()> {
                 println!("{}", res.to_markdown());
             }
         }
-        Commands::Run { prompt, target, url, workspace, fail_under } => {
+        Commands::Run {
+            prompt,
+            target,
+            url,
+            workspace,
+            fail_under,
+        } => {
             if let Some(p) = prompt {
                 orchestrator::Orchestrator::run_routed(&p, workspace)?;
             } else {
@@ -201,11 +207,24 @@ async fn main() -> anyhow::Result<()> {
         Commands::Recon { target, out } => {
             std::fs::create_dir_all(&out)?;
             let evidence = recon::ReconEngine::harvest_evidence(&target)?;
-            println!("🔍 Discovered {} cryptographic evidence items", evidence.len());
-            let recon_map = recon::ReconEngine::build_recon_map(&target, None, vec![], vec![], vec![], evidence);
+            println!(
+                "🔍 Discovered {} cryptographic evidence items",
+                evidence.len()
+            );
+            let recon_map = recon::ReconEngine::build_recon_map(
+                &target,
+                None,
+                vec![],
+                vec![],
+                vec![],
+                evidence,
+            );
             let md = recon::ReconEngine::render_markdown(&recon_map);
             std::fs::write(out.join("recon.md"), md)?;
-            println!("✅ Reconnaissance map written to {}", out.join("recon.md").display());
+            println!(
+                "✅ Reconnaissance map written to {}",
+                out.join("recon.md").display()
+            );
         }
         Commands::Architect { recon_path } => {
             let data = std::fs::read_to_string(&recon_path)?;
@@ -227,8 +246,16 @@ async fn main() -> anyhow::Result<()> {
             println!("🎨 Checked {} color contrast pairs:", results.len());
             let mut failed = 0;
             for r in &results {
-                let status = if r.normal_aa_pass { "PASS" } else { failed += 1; "FAIL" };
-                println!("  [{}] {} on {}: {:.2}:1", status, r.fg_color, r.bg_color, r.ratio);
+                let status = if r.normal_aa_pass {
+                    "PASS"
+                } else {
+                    failed += 1;
+                    "FAIL"
+                };
+                println!(
+                    "  [{}] {} on {}: {:.2}:1",
+                    status, r.fg_color, r.bg_color, r.ratio
+                );
             }
             if failed > 0 {
                 std::process::exit(1);
@@ -238,34 +265,57 @@ async fn main() -> anyhow::Result<()> {
             let themes = entrepreneur::EntrepreneurEngine::analyze_reviews(&csv_path)?;
             let md = entrepreneur::EntrepreneurEngine::render_markdown(&themes);
             std::fs::write("replica/feedback.md", md)?;
-            println!("💡 Identified {} customer pain themes. Saved to replica/feedback.md", themes.len());
+            println!(
+                "💡 Identified {} customer pain themes. Saved to replica/feedback.md",
+                themes.len()
+            );
         }
-        Commands::Diff { features_path, original_png, clone_png, fail_under } => {
+        Commands::Diff {
+            features_path,
+            original_png,
+            clone_png,
+            fail_under,
+        } => {
             let mut report = diff::DiffEngine::calculate_feature_parity(&features_path)?;
             if let (Some(orig), Some(clone)) = (original_png, clone_png) {
                 let visual = diff::DiffEngine::compute_visual_layout_parity(orig, clone)?;
                 report.visual_score = Some(visual);
-                report.overall_score = ((0.8 * report.feature_score + 0.2 * visual) * 10.0).round() / 10.0;
+                report.overall_score =
+                    ((0.8 * report.feature_score + 0.2 * visual) * 10.0).round() / 10.0;
             }
             let md = diff::DiffEngine::render_markdown(&report);
             std::fs::write("replica/parity.md", md)?;
-            println!("📊 Overall Parity: {:.1}% (Features: {:.1}%)", report.overall_score, report.feature_score);
+            println!(
+                "📊 Overall Parity: {:.1}% (Features: {:.1}%)",
+                report.overall_score, report.feature_score
+            );
 
             if let Some(threshold) = fail_under {
                 if report.overall_score < threshold {
-                    eprintln!("❌ Parity score {:.1}% is below required threshold {:.1}%", report.overall_score, threshold);
+                    eprintln!(
+                        "❌ Parity score {:.1}% is below required threshold {:.1}%",
+                        report.overall_score, threshold
+                    );
                     std::process::exit(1);
                 }
             }
         }
-        Commands::Sweep { path, avoid, domains, colors } => {
+        Commands::Sweep {
+            path,
+            avoid,
+            domains,
+            colors,
+        } => {
             let report = brand::BrandEngine::sweep_codebase(&path, &avoid, &domains, &colors)?;
             let md = brand::BrandEngine::render_markdown(&report);
             std::fs::write("replica/cleanroom-report.md", md)?;
             if report.passed {
                 println!("🟢 Clean-room sweep passed: 0 brand/IP violations.");
             } else {
-                eprintln!("🔴 Clean-room sweep failed with {} violations!", report.total_violations);
+                eprintln!(
+                    "🔴 Clean-room sweep failed with {} violations!",
+                    report.total_violations
+                );
                 std::process::exit(1);
             }
         }
@@ -276,9 +326,15 @@ async fn main() -> anyhow::Result<()> {
             let md = launch::LaunchEngine::render_markdown(&audit);
             std::fs::write("replica/listing-audit.md", md)?;
             if audit.passed {
-                println!("🟢 Store listing metadata passed audit ({} warnings).", audit.warnings.len());
+                println!(
+                    "🟢 Store listing metadata passed audit ({} warnings).",
+                    audit.warnings.len()
+                );
             } else {
-                eprintln!("🔴 Store listing audit failed with {} errors!", audit.errors.len());
+                eprintln!(
+                    "🔴 Store listing audit failed with {} errors!",
+                    audit.errors.len()
+                );
                 std::process::exit(1);
             }
         }
@@ -289,8 +345,15 @@ async fn main() -> anyhow::Result<()> {
             let json = serde_json::to_string_pretty(&report)?;
             std::fs::write(out.join("har-catalog.md"), md)?;
             std::fs::write(out.join("har-report.json"), json)?;
-            println!("🌐 Inferred {} API endpoints from {} network entries", report.endpoints.len(), report.total_entries);
-            println!("✅ Reports written to {}/har-catalog.md and har-report.json", out.display());
+            println!(
+                "🌐 Inferred {} API endpoints from {} network entries",
+                report.endpoints.len(),
+                report.total_entries
+            );
+            println!(
+                "✅ Reports written to {}/har-catalog.md and har-report.json",
+                out.display()
+            );
         }
         Commands::Mock { port, export_only } => {
             let recon_path = std::path::Path::new("replica/recon-map.json");
@@ -309,7 +372,10 @@ async fn main() -> anyhow::Result<()> {
             let out_ts = std::path::Path::new("replica/mock-server.ts");
             std::fs::create_dir_all("replica")?;
             mock::MockEngine::export_bun_mock_server(&routes, out_ts, port)?;
-            println!("📦 Exported standalone Bun mock server to {}", out_ts.display());
+            println!(
+                "📦 Exported standalone Bun mock server to {}",
+                out_ts.display()
+            );
 
             if !export_only {
                 mock::MockEngine::run_embedded_server(routes, port).await?;
@@ -329,7 +395,10 @@ async fn main() -> anyhow::Result<()> {
             };
 
             e2e::E2eGenerator::write_spec_file(&flows, &screens, &base_url, &out)?;
-            println!("🧪 Generated Playwright E2E and Axe-Core accessibility spec: {}", out.display());
+            println!(
+                "🧪 Generated Playwright E2E and Axe-Core accessibility spec: {}",
+                out.display()
+            );
         }
         Commands::Mcp => {
             eprintln!("Starting Replica Agent Model Context Protocol (MCP) server over stdio...");

@@ -51,8 +51,8 @@ impl HarFlowEngine {
         let content = fs::read_to_string(har_path.as_ref())
             .with_context(|| format!("Reading HAR file {:?}", har_path.as_ref()))?;
 
-        let har_json: Value = serde_json::from_str(&content)
-            .context("Parsing HAR JSON structure")?;
+        let har_json: Value =
+            serde_json::from_str(&content).context("Parsing HAR JSON structure")?;
 
         Self::analyze_har_value(&har_json)
     }
@@ -82,7 +82,11 @@ impl HarFlowEngine {
             };
 
             let url_str = request.get("url").and_then(|u| u.as_str()).unwrap_or("");
-            let method = request.get("method").and_then(|m| m.as_str()).unwrap_or("GET").to_uppercase();
+            let method = request
+                .get("method")
+                .and_then(|m| m.as_str())
+                .unwrap_or("GET")
+                .to_uppercase();
 
             // Skip static asset files (css, js, png, jpg, woff, etc.)
             if Self::is_static_asset(url_str) {
@@ -139,7 +143,11 @@ impl HarFlowEngine {
             let mut hasher = Sha256::new();
             hasher.update(url_str.as_bytes());
             hasher.update(method.as_bytes());
-            if let Some(pd) = request.get("postData").and_then(|p| p.get("text")).and_then(|t| t.as_str()) {
+            if let Some(pd) = request
+                .get("postData")
+                .and_then(|p| p.get("text"))
+                .and_then(|t| t.as_str())
+            {
                 hasher.update(pd.as_bytes());
             }
             let digest = hex::encode(hasher.finalize());
@@ -241,9 +249,18 @@ impl HarFlowEngine {
     pub fn render_markdown(report: &HarAnalysisReport) -> String {
         let mut md = String::new();
         md.push_str("# 🌐 Network Flow & Inferred API Catalog\n\n");
-        md.push_str(&format!("- **Total Entries Processed:** {}\n", report.total_entries));
-        md.push_str(&format!("- **API Endpoints Identified:** {}\n", report.endpoints.len()));
-        md.push_str(&format!("- **Static Assets Excluded:** {}\n\n", report.static_assets_skipped));
+        md.push_str(&format!(
+            "- **Total Entries Processed:** {}\n",
+            report.total_entries
+        ));
+        md.push_str(&format!(
+            "- **API Endpoints Identified:** {}\n",
+            report.endpoints.len()
+        ));
+        md.push_str(&format!(
+            "- **Static Assets Excluded:** {}\n\n",
+            report.static_assets_skipped
+        ));
 
         md.push_str("## Inferred API Endpoints\n\n");
         md.push_str("| Method | Path | Status Codes | Auth | Calls | SHA-256 |\n");
@@ -278,13 +295,22 @@ impl HarFlowEngine {
         for ep in &report.endpoints {
             md.push_str(&format!("### `{} {}`\n\n", ep.method, ep.path));
             if !ep.query_params.is_empty() {
-                md.push_str(&format!("- **Query Parameters:** `{}`\n", ep.query_params.join("`, `")));
+                md.push_str(&format!(
+                    "- **Query Parameters:** `{}`\n",
+                    ep.query_params.join("`, `")
+                ));
             }
             if let Some(ref req_s) = ep.sample_request_schema {
-                md.push_str(&format!("- **Request Body Schema:**\n```json\n{}\n```\n", serde_json::to_string_pretty(req_s).unwrap_or_default()));
+                md.push_str(&format!(
+                    "- **Request Body Schema:**\n```json\n{}\n```\n",
+                    serde_json::to_string_pretty(req_s).unwrap_or_default()
+                ));
             }
             if let Some(ref res_s) = ep.sample_response_schema {
-                md.push_str(&format!("- **Response Schema:**\n```json\n{}\n```\n", serde_json::to_string_pretty(res_s).unwrap_or_default()));
+                md.push_str(&format!(
+                    "- **Response Schema:**\n```json\n{}\n```\n",
+                    serde_json::to_string_pretty(res_s).unwrap_or_default()
+                ));
             }
             md.push('\n');
         }
@@ -295,8 +321,8 @@ impl HarFlowEngine {
     fn is_static_asset(url: &str) -> bool {
         let clean = url.split('?').next().unwrap_or(url).to_lowercase();
         let exts = [
-            ".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".woff",
-            ".woff2", ".ttf", ".eot", ".map", ".webp", ".mp4", ".mp3",
+            ".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".woff", ".woff2",
+            ".ttf", ".eot", ".map", ".webp", ".mp4", ".mp3",
         ];
         exts.iter().any(|ext| clean.ends_with(ext))
     }
@@ -330,7 +356,11 @@ impl HarFlowEngine {
     fn detect_auth(request: &Value) -> Option<String> {
         let headers = request.get("headers").and_then(|h| h.as_array())?;
         for h in headers {
-            let name = h.get("name").and_then(|n| n.as_str()).unwrap_or("").to_lowercase();
+            let name = h
+                .get("name")
+                .and_then(|n| n.as_str())
+                .unwrap_or("")
+                .to_lowercase();
             let val = h.get("value").and_then(|v| v.as_str()).unwrap_or("");
 
             if name == "authorization" {
@@ -343,7 +373,9 @@ impl HarFlowEngine {
                 }
             } else if name == "x-api-key" || name == "apikey" {
                 return Some("API Key Header".to_string());
-            } else if name == "cookie" && (val.contains("session") || val.contains("token") || val.contains("auth")) {
+            } else if name == "cookie"
+                && (val.contains("session") || val.contains("token") || val.contains("auth"))
+            {
                 return Some("Session Cookie".to_string());
             }
         }
@@ -451,7 +483,11 @@ mod tests {
         assert_eq!(report.static_assets_skipped, 1);
         assert_eq!(report.endpoints.len(), 2);
 
-        let get_me = report.endpoints.iter().find(|e| e.path == "/v2/users/me").unwrap();
+        let get_me = report
+            .endpoints
+            .iter()
+            .find(|e| e.path == "/v2/users/me")
+            .unwrap();
         assert_eq!(get_me.method, "GET");
         assert_eq!(get_me.auth_type, Some("Bearer JWT".to_string()));
 

@@ -3,7 +3,13 @@ name = "replica-square"
 version = "2.0.0"
 edition = "2021"
 authors = ["Replica-Square Contributors"]
-description = "Fully agentic clean-room reverse-engineering and product-replica engine"
+description = "Fully agentic clean-room reverse-engineering, REA integration, and product-reconstruction engine"
+license = "MIT"
+repository = "https://github.com/imMamdouhaboammar/replica-square"
+homepage = "https://github.com/imMamdouhaboammar/replica-square"
+readme = "README.md"
+keywords = ["reverse-engineering", "clean-room", "rea", "mcp", "agentic"]
+categories = ["command-line-utilities", "development-tools"]
 
 [lib]
 name = "replica_square"

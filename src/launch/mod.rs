@@ -59,7 +59,10 @@ impl LaunchEngine {
                             store: "App Store".to_string(),
                             field: name.to_string(),
                             severity: "error".to_string(),
-                            message: format!("Exceeds limit: {} / {} characters", char_len, max_len),
+                            message: format!(
+                                "Exceeds limit: {} / {} characters",
+                                char_len, max_len
+                            ),
                         });
                     }
 
@@ -81,7 +84,9 @@ impl LaunchEngine {
                             store: "App Store".to_string(),
                             field: name.to_string(),
                             severity: "warning".to_string(),
-                            message: "Contains unverified ranking/price claim (e.g. #1, best, free)".to_string(),
+                            message:
+                                "Contains unverified ranking/price claim (e.g. #1, best, free)"
+                                    .to_string(),
                         });
                     }
                 }
@@ -94,7 +99,9 @@ impl LaunchEngine {
                         store: "App Store".to_string(),
                         field: "keywords".to_string(),
                         severity: "warning".to_string(),
-                        message: "Contains space after comma ', '. Remove spaces to save characters.".to_string(),
+                        message:
+                            "Contains space after comma ', '. Remove spaces to save characters."
+                                .to_string(),
                     });
                 }
             }
@@ -116,7 +123,10 @@ impl LaunchEngine {
                             store: "Google Play".to_string(),
                             field: name.to_string(),
                             severity: "error".to_string(),
-                            message: format!("Exceeds limit: {} / {} characters", char_len, max_len),
+                            message: format!(
+                                "Exceeds limit: {} / {} characters",
+                                char_len, max_len
+                            ),
                         });
                     }
 
@@ -132,7 +142,9 @@ impl LaunchEngine {
                         }
                     }
 
-                    if (name == "title" || name == "short_description") && claims_regex.is_match(text) {
+                    if (name == "title" || name == "short_description")
+                        && claims_regex.is_match(text)
+                    {
                         warnings.push(ListingIssue {
                             store: "Google Play".to_string(),
                             field: name.to_string(),
@@ -145,7 +157,11 @@ impl LaunchEngine {
         }
 
         let passed = errors.is_empty();
-        ListingAudit { passed, errors, warnings }
+        ListingAudit {
+            passed,
+            errors,
+            warnings,
+        }
     }
 
     /// Render Listing Audit Markdown
@@ -155,7 +171,10 @@ impl LaunchEngine {
         if audit.passed {
             md.push_str("### 🟢 PASSED: Listing metadata is compliant with App Store & Google Play guidelines.\n\n");
         } else {
-            md.push_str(&format!("### 🔴 FAILED: {} Rejection Risks Found\n\n", audit.errors.len()));
+            md.push_str(&format!(
+                "### 🔴 FAILED: {} Rejection Risks Found\n\n",
+                audit.errors.len()
+            ));
             md.push_str("Fix all errors before submitting to store review.\n\n");
         }
 
@@ -164,9 +183,12 @@ impl LaunchEngine {
             md.push_str("| Store | Field | Issue |\n");
             md.push_str("|:---|:---|:---|\n");
             for err in &audit.errors {
-                md.push_str(&format!("| {} | `{}` | {} |\n", err.store, err.field, err.message));
+                md.push_str(&format!(
+                    "| {} | `{}` | {} |\n",
+                    err.store, err.field, err.message
+                ));
             }
-            md.push_str("\n");
+            md.push('\n');
         }
 
         if !audit.warnings.is_empty() {
@@ -174,9 +196,12 @@ impl LaunchEngine {
             md.push_str("| Store | Field | Suggestion |\n");
             md.push_str("|:---|:---|:---|\n");
             for w in &audit.warnings {
-                md.push_str(&format!("| {} | `{}` | {} |\n", w.store, w.field, w.message));
+                md.push_str(&format!(
+                    "| {} | `{}` | {} |\n",
+                    w.store, w.field, w.message
+                ));
             }
-            md.push_str("\n");
+            md.push('\n');
         }
 
         md

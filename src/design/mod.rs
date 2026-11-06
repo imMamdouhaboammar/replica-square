@@ -59,10 +59,13 @@ impl DesignEngine {
         let pairs: Vec<ContrastPair> = if tokens.pairs.is_empty() {
             // Auto-detect pairs if none specified
             let mut detected = Vec::new();
-            for (fg_k, _) in &tokens.colors {
+            for fg_k in tokens.colors.keys() {
                 if fg_k.contains("text") || fg_k.contains("fg") || fg_k.starts_with("on-") {
-                    for (bg_k, _) in &tokens.colors {
-                        if bg_k.contains("bg") || bg_k.contains("background") || bg_k.contains("surface") {
+                    for bg_k in tokens.colors.keys() {
+                        if bg_k.contains("bg")
+                            || bg_k.contains("background")
+                            || bg_k.contains("surface")
+                        {
                             detected.push(ContrastPair {
                                 fg_name: fg_k.clone(),
                                 bg_name: bg_k.clone(),
@@ -78,7 +81,9 @@ impl DesignEngine {
         };
 
         for p in pairs {
-            if let (Some(fg), Some(bg)) = (tokens.colors.get(&p.fg_name), tokens.colors.get(&p.bg_name)) {
+            if let (Some(fg), Some(bg)) =
+                (tokens.colors.get(&p.fg_name), tokens.colors.get(&p.bg_name))
+            {
                 if let Ok(ratio) = Self::contrast_ratio(fg, bg) {
                     results.push(ContrastResult {
                         fg_color: format!("{} ({})", p.fg_name, fg),

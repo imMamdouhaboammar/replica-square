@@ -58,10 +58,14 @@ impl ArchitectEngine {
                     references: None,
                 },
             ],
-            indexes: vec!["create unique index users_email_idx on users (lower(email));".to_string()],
+            indexes: vec![
+                "create unique index users_email_idx on users (lower(email));".to_string(),
+            ],
             rls_policies: vec![
-                "create policy users_select_own on users for select using (id = auth.uid());".to_string(),
-                "create policy users_update_own on users for update using (id = auth.uid());".to_string(),
+                "create policy users_select_own on users for select using (id = auth.uid());"
+                    .to_string(),
+                "create policy users_update_own on users for update using (id = auth.uid());"
+                    .to_string(),
             ],
         });
 
@@ -106,7 +110,9 @@ impl ArchitectEngine {
                             is_primary_key: false,
                             is_nullable: false,
                             default_value: Some("'active'".to_string()),
-                            check_constraint: Some("check (status in ('active', 'draft', 'archived'))".to_string()),
+                            check_constraint: Some(
+                                "check (status in ('active', 'draft', 'archived'))".to_string(),
+                            ),
                             references: None,
                         },
                         DbColumn {
@@ -138,12 +144,19 @@ impl ArchitectEngine {
                         },
                     ],
                     indexes: vec![
-                        format!("create index {}_user_id_idx on {} (user_id);", table_name, table_name),
-                        format!("create index {}_created_at_idx on {} (created_at desc);", table_name, table_name),
+                        format!(
+                            "create index {}_user_id_idx on {} (user_id);",
+                            table_name, table_name
+                        ),
+                        format!(
+                            "create index {}_created_at_idx on {} (created_at desc);",
+                            table_name, table_name
+                        ),
                     ],
-                    rls_policies: vec![
-                        format!("create policy {}_all_own on {} for all using (user_id = auth.uid());", table_name, table_name),
-                    ],
+                    rls_policies: vec![format!(
+                        "create policy {}_all_own on {} for all using (user_id = auth.uid());",
+                        table_name, table_name
+                    )],
                 });
             }
         }
@@ -231,15 +244,22 @@ impl ArchitectEngine {
     /// Render SQL Schema DDL
     pub fn render_sql(plan: &ArchitecturePlan) -> String {
         let mut sql = String::new();
-        sql.push_str("-- ==========================================================================\n");
+        sql.push_str(
+            "-- ==========================================================================\n",
+        );
         sql.push_str("-- REPLICA DATABASE SCHEMA (PostgreSQL)\n");
         sql.push_str("-- Clean-Room Architecture Specification\n");
-        sql.push_str("-- ==========================================================================\n\n");
+        sql.push_str(
+            "-- ==========================================================================\n\n",
+        );
         sql.push_str("CREATE EXTENSION IF NOT EXISTS \"pgcrypto\";\n\n");
 
         for table in &plan.tables {
             sql.push_str(&format!("-- Table: {}\n", table.name));
-            sql.push_str(&format!("CREATE TABLE IF NOT EXISTS public.{} (\n", table.name));
+            sql.push_str(&format!(
+                "CREATE TABLE IF NOT EXISTS public.{} (\n",
+                table.name
+            ));
 
             let mut col_defs = Vec::new();
             for col in &table.columns {
@@ -271,11 +291,14 @@ impl ArchitectEngine {
             }
 
             // RLS
-            sql.push_str(&format!("ALTER TABLE public.{} ENABLE ROW LEVEL SECURITY;\n", table.name));
+            sql.push_str(&format!(
+                "ALTER TABLE public.{} ENABLE ROW LEVEL SECURITY;\n",
+                table.name
+            ));
             for policy in &table.rls_policies {
                 sql.push_str(&format!("{}\n", policy));
             }
-            sql.push_str("\n");
+            sql.push('\n');
         }
 
         sql
@@ -288,12 +311,24 @@ impl ArchitectEngine {
         md.push_str("## 1. Stack Selection\n\n");
         md.push_str("| Layer | Choice | Rationale |\n");
         md.push_str("|:---|:---|:---|\n");
-        md.push_str(&format!("| Web & API | {} | Modern React server components, streaming SSR, type safety |\n", plan.web_framework));
-        md.push_str(&format!("| Styling | {} | Utility-first, zero runtime CSS overhead, accessible tokens |\n", plan.styling_system));
-        md.push_str(&format!("| Database | {} | ACID compliance, robust jsonb, native RLS, instant branching |\n", plan.database_engine));
-        md.push_str(&format!("| ORM | {} | Type-safe SQL dialect, zero codegen latency, lightweight |\n", plan.orm_layer));
+        md.push_str(&format!(
+            "| Web & API | {} | Modern React server components, streaming SSR, type safety |\n",
+            plan.web_framework
+        ));
+        md.push_str(&format!(
+            "| Styling | {} | Utility-first, zero runtime CSS overhead, accessible tokens |\n",
+            plan.styling_system
+        ));
+        md.push_str(&format!(
+            "| Database | {} | ACID compliance, robust jsonb, native RLS, instant branching |\n",
+            plan.database_engine
+        ));
+        md.push_str(&format!(
+            "| ORM | {} | Type-safe SQL dialect, zero codegen latency, lightweight |\n",
+            plan.orm_layer
+        ));
         md.push_str(&format!("| Auth | {} | Secure session cookies, OAuth 2.0 / email OTP, native DB integration |\n", plan.auth_provider));
-        md.push_str("\n");
+        md.push('\n');
 
         md.push_str("## 2. API Contracts & Route Registry\n\n");
         md.push_str("| Method | Path | Auth? | Description | Input | Output |\n");
@@ -309,7 +344,7 @@ impl ArchitectEngine {
                 r.output_schema
             ));
         }
-        md.push_str("\n");
+        md.push('\n');
 
         md.push_str("## 3. Critical Edge Cases & Risk Mitigations\n\n");
         for (risk, mit) in &plan.risk_mitigations {

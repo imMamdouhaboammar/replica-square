@@ -74,7 +74,8 @@ fn test_feature_parity_weighting() {
 
     fs::write(&csv_file, csv_content).unwrap();
 
-    let report = DiffEngine::calculate_feature_parity(&csv_file).expect("Parity calculation failed");
+    let report =
+        DiffEngine::calculate_feature_parity(&csv_file).expect("Parity calculation failed");
     assert!((report.feature_score - 66.7).abs() < 0.2);
     assert_eq!(report.must_completed, 1);
     assert_eq!(report.must_total, 1);
@@ -88,17 +89,41 @@ fn test_clean_room_brand_sweep() {
     fs::create_dir_all(&tmp_dir).unwrap();
 
     let clean_file = tmp_dir.join("clean.ts");
-    fs::write(&clean_file, "export const bookingTitle = 'Schedule Meeting';").unwrap();
+    fs::write(
+        &clean_file,
+        "export const bookingTitle = 'Schedule Meeting';",
+    )
+    .unwrap();
 
-    let report1 = BrandEngine::sweep_codebase(&tmp_dir, &["OldApp".to_string()], &["oldapp.com".to_string()], &["#006bff".to_string()]).unwrap();
-    assert!(report1.passed, "Findings in clean run: {:?}", report1.findings);
+    let report1 = BrandEngine::sweep_codebase(
+        &tmp_dir,
+        &["OldApp".to_string()],
+        &["oldapp.com".to_string()],
+        &["#006bff".to_string()],
+    )
+    .unwrap();
+    assert!(
+        report1.passed,
+        "Findings in clean run: {:?}",
+        report1.findings
+    );
     assert_eq!(report1.total_violations, 0);
 
     // Add dirty file with competitor brand leak
     let dirty_file = tmp_dir.join("dirty.ts");
-    fs::write(&dirty_file, "import { OldAppButton } from 'oldapp.com'; const color = '#006bff';").unwrap();
+    fs::write(
+        &dirty_file,
+        "import { OldAppButton } from 'oldapp.com'; const color = '#006bff';",
+    )
+    .unwrap();
 
-    let report2 = BrandEngine::sweep_codebase(&tmp_dir, &["OldApp".to_string()], &["oldapp.com".to_string()], &["#006bff".to_string()]).unwrap();
+    let report2 = BrandEngine::sweep_codebase(
+        &tmp_dir,
+        &["OldApp".to_string()],
+        &["oldapp.com".to_string()],
+        &["#006bff".to_string()],
+    )
+    .unwrap();
     assert!(!report2.passed);
     assert!(report2.total_violations >= 2);
 
@@ -133,7 +158,9 @@ fn test_store_listing_linter() {
     let meta_invalid = StoreMetadata {
         avoid: Some(vec!["Competitor".to_string()]),
         app_store: Some(AppStoreListing {
-            name: Some("This Super Long App Name Exceeds The Maximum Limit Of 30 Chars".to_string()),
+            name: Some(
+                "This Super Long App Name Exceeds The Maximum Limit Of 30 Chars".to_string(),
+            ),
             subtitle: Some("The #1 Competitor Alternative".to_string()),
             promotional_text: None,
             description: None,
@@ -146,8 +173,14 @@ fn test_store_listing_linter() {
     let audit_invalid = LaunchEngine::audit_listing(&meta_invalid);
     assert!(!audit_invalid.passed);
     assert!(audit_invalid.errors.iter().any(|e| e.field == "name"));
-    assert!(audit_invalid.errors.iter().any(|e| e.message.contains("Competitor")));
-    assert!(audit_invalid.warnings.iter().any(|w| w.message.contains("#1")));
+    assert!(audit_invalid
+        .errors
+        .iter()
+        .any(|e| e.message.contains("Competitor")));
+    assert!(audit_invalid
+        .warnings
+        .iter()
+        .any(|w| w.message.contains("#1")));
 }
 
 #[test]
@@ -155,7 +188,10 @@ fn test_recon_hash_integrity() {
     let bytes = b"Replica clean room reverse engineering evidence payload";
     let hash = ReconEngine::compute_sha256(bytes);
     assert_eq!(hash.len(), 64);
-    assert_eq!(hash, "44fbc7610f8cf81025f245bb5aeb654b34954042d6db1998aec04694b4d20c29");
+    assert_eq!(
+        hash,
+        "44fbc7610f8cf81025f245bb5aeb654b34954042d6db1998aec04694b4d20c29"
+    );
 }
 
 #[test]

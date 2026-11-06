@@ -29,10 +29,17 @@ impl ReconEngine {
                 uri_or_path: p.to_string_lossy().to_string(),
                 sha256_digest: format!("sha256:{}", digest),
                 timestamp: Utc::now(),
-                observations: vec![format!("Directly harvested from file with size {} bytes", data.len())],
+                observations: vec![format!(
+                    "Directly harvested from file with size {} bytes",
+                    data.len()
+                )],
             });
         } else if p.is_dir() {
-            for entry in walkdir::WalkDir::new(p).max_depth(3).into_iter().filter_map(|e| e.ok()) {
+            for entry in walkdir::WalkDir::new(p)
+                .max_depth(3)
+                .into_iter()
+                .filter_map(|e| e.ok())
+            {
                 if entry.file_type().is_file() {
                     if let Ok(data) = fs::read(entry.path()) {
                         let digest = Self::compute_sha256(&data);
@@ -42,7 +49,10 @@ impl ReconEngine {
                             uri_or_path: entry.path().to_string_lossy().to_string(),
                             sha256_digest: format!("sha256:{}", digest),
                             timestamp: Utc::now(),
-                            observations: vec![format!("Artifact discovered: {}", entry.file_name().to_string_lossy())],
+                            observations: vec![format!(
+                                "Artifact discovered: {}",
+                                entry.file_name().to_string_lossy()
+                            )],
                         });
                     }
                 }
@@ -79,7 +89,10 @@ impl ReconEngine {
         if let Some(ref url) = map.target_url {
             md.push_str(&format!("**Target URL / Surface**: {}\n", url));
         }
-        md.push_str(&format!("**Analyzed At**: {}\n\n", map.analyzed_at.to_rfc3339()));
+        md.push_str(&format!(
+            "**Analyzed At**: {}\n\n",
+            map.analyzed_at.to_rfc3339()
+        ));
 
         md.push_str("## 1. Screens & Surfaces\n\n");
         md.push_str("| Screen ID | Title | Route Path | Interactive Elements | States |\n");
@@ -94,12 +107,15 @@ impl ReconEngine {
                 s.states.join(", ")
             ));
         }
-        md.push_str("\n");
+        md.push('\n');
 
         md.push_str("## 2. User Flows\n\n");
         for f in &map.flows {
             md.push_str(&format!("### Flow: {} (`{}`)\n", f.name, f.flow_id));
-            md.push_str(&format!("- **Screens Involved**: {}\n", f.step_screens.join(" -> ")));
+            md.push_str(&format!(
+                "- **Screens Involved**: {}\n",
+                f.step_screens.join(" -> ")
+            ));
             md.push_str("- **Happy Path**:\n");
             for step in &f.happy_path {
                 md.push_str(&format!("  1. {}\n", step));
@@ -110,14 +126,14 @@ impl ReconEngine {
                     md.push_str(&format!("  * {}\n", ec));
                 }
             }
-            md.push_str("\n");
+            md.push('\n');
         }
 
         md.push_str("## 3. Hard Architectural Constraints\n\n");
         for c in &map.constraints {
             md.push_str(&format!("- {}\n", c));
         }
-        md.push_str("\n");
+        md.push('\n');
 
         md.push_str("## 4. Cryptographic Evidence Ledger\n\n");
         md.push_str("| Evidence ID | Source | SHA-256 Digest | Key Observation |\n");
@@ -138,7 +154,8 @@ impl ReconEngine {
     /// Generate clean-room CSV feature matrix template from ReconMap
     pub fn generate_features_csv(map: &ReconMap) -> String {
         let mut wtr = csv::Writer::from_writer(vec![]);
-        wtr.write_record(["feature", "area", "priority", "original", "clone", "notes"]).unwrap();
+        wtr.write_record(["feature", "area", "priority", "original", "clone", "notes"])
+            .unwrap();
 
         for s in &map.screens {
             for elem in &s.interactive_elements {
@@ -149,7 +166,8 @@ impl ReconEngine {
                     "yes",
                     "no",
                     "Extracted from recon reconnaissance",
-                ]).unwrap();
+                ])
+                .unwrap();
             }
         }
 
@@ -161,7 +179,8 @@ impl ReconEngine {
                 "yes",
                 "no",
                 "Primary end-to-end journey",
-            ]).unwrap();
+            ])
+            .unwrap();
         }
 
         String::from_utf8(wtr.into_inner().unwrap()).unwrap()

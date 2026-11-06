@@ -18,10 +18,7 @@ pub struct Orchestrator;
 
 impl Orchestrator {
     /// Dynamically route user prompt, construct DAG, and execute via tool-agents with auto-handoff
-    pub fn run_routed<P: AsRef<Path>>(
-        prompt: &str,
-        workspace_dir: P,
-    ) -> Result<PipelineResult> {
+    pub fn run_routed<P: AsRef<Path>>(prompt: &str, workspace_dir: P) -> Result<PipelineResult> {
         let ws = workspace_dir.as_ref();
         let router = DynamicRouter::new();
         let route = router.route(prompt);
@@ -32,11 +29,15 @@ impl Orchestrator {
             anyhow::bail!("No executable DAG found for prompt: '{}'", prompt);
         }
 
-        let target_name = route.params.get("target")
+        let target_name = route
+            .params
+            .get("target")
             .cloned()
             .unwrap_or_else(|| "TargetApp".to_string());
         let target_url = route.params.get("url").cloned();
-        let fail_under: f64 = route.params.get("fail_under")
+        let fail_under: f64 = route
+            .params
+            .get("fail_under")
             .and_then(|v| v.parse().ok())
             .unwrap_or(80.0);
 
@@ -65,7 +66,10 @@ impl Orchestrator {
         let replica_dir = ws.join("replica");
         fs::create_dir_all(&replica_dir).with_context(|| format!("Creating {:?}", replica_dir))?;
 
-        println!("🚀 [Replica Agent] Starting autonomous reconstruction for target: {}", target_name);
+        println!(
+            "🚀 [Replica Agent] Starting autonomous reconstruction for target: {}",
+            target_name
+        );
 
         // -------------------------------------------------------------
         // Phase 1: Reconnaissance & Cryptographic Evidence Ledger
@@ -84,8 +88,15 @@ impl Orchestrator {
                     "Upcoming Schedule List".to_string(),
                     "Share Link Trigger".to_string(),
                 ],
-                network_calls: vec!["GET /api/v1/events".to_string(), "GET /api/v1/user/me".to_string()],
-                states: vec!["empty".to_string(), "populated".to_string(), "loading".to_string()],
+                network_calls: vec![
+                    "GET /api/v1/events".to_string(),
+                    "GET /api/v1/user/me".to_string(),
+                ],
+                states: vec![
+                    "empty".to_string(),
+                    "populated".to_string(),
+                    "loading".to_string(),
+                ],
             },
             ReconScreen {
                 screen_id: "S-BOOKING".to_string(),
@@ -98,28 +109,33 @@ impl Orchestrator {
                     "Guest Form Input".to_string(),
                     "Confirm Booking CTA".to_string(),
                 ],
-                network_calls: vec!["GET /api/v1/availability".to_string(), "POST /api/v1/bookings".to_string()],
-                states: vec!["date_select".to_string(), "slot_select".to_string(), "confirmed".to_string()],
+                network_calls: vec![
+                    "GET /api/v1/availability".to_string(),
+                    "POST /api/v1/bookings".to_string(),
+                ],
+                states: vec![
+                    "date_select".to_string(),
+                    "slot_select".to_string(),
+                    "confirmed".to_string(),
+                ],
             },
         ];
 
-        let sample_flows = vec![
-            ReconFlow {
-                flow_id: "F-BOOKING".to_string(),
-                name: "Guest Booking Journey".to_string(),
-                step_screens: vec!["S-BOOKING".to_string(), "S-CONFIRMATION".to_string()],
-                happy_path: vec![
-                    "Guest opens public link".to_string(),
-                    "Selects available date and time slot".to_string(),
-                    "Enters name and email".to_string(),
-                    "Receives calendar invite & confirmation".to_string(),
-                ],
-                edge_cases: vec![
-                    "Slot booked simultaneously by another guest (concurrency clash)".to_string(),
-                    "Guest in conflicting timezone (DST calculation)".to_string(),
-                ],
-            },
-        ];
+        let sample_flows = vec![ReconFlow {
+            flow_id: "F-BOOKING".to_string(),
+            name: "Guest Booking Journey".to_string(),
+            step_screens: vec!["S-BOOKING".to_string(), "S-CONFIRMATION".to_string()],
+            happy_path: vec![
+                "Guest opens public link".to_string(),
+                "Selects available date and time slot".to_string(),
+                "Enters name and email".to_string(),
+                "Receives calendar invite & confirmation".to_string(),
+            ],
+            edge_cases: vec![
+                "Slot booked simultaneously by another guest (concurrency clash)".to_string(),
+                "Guest in conflicting timezone (DST calculation)".to_string(),
+            ],
+        }];
 
         let constraints = vec![
             "Absolute zero double-booking invariant (exclusion constraint or serializable transaction)".to_string(),
@@ -157,7 +173,10 @@ impl Orchestrator {
             let themes = EntrepreneurEngine::analyze_reviews(&reviews_csv_path)?;
             let feedback_md = EntrepreneurEngine::render_markdown(&themes);
             fs::write(replica_dir.join("feedback.md"), feedback_md)?;
-            println!("   -> Formulated {} customer pain themes with counter-strategies", themes.len());
+            println!(
+                "   -> Formulated {} customer pain themes with counter-strategies",
+                themes.len()
+            );
         } else {
             // Write a template reviews CSV if absent
             let sample_csv = "source,url,date,rating,text\n\
@@ -173,7 +192,9 @@ impl Orchestrator {
         // -------------------------------------------------------------
         // Phase 3: Clean-Room System Architecture & PostgreSQL Schema
         // -------------------------------------------------------------
-        println!("🏛️ [Phase 3/7] Generating production SQL schema and API contract specifications...");
+        println!(
+            "🏛️ [Phase 3/7] Generating production SQL schema and API contract specifications..."
+        );
         let arch_plan = ArchitectEngine::plan_from_recon(&recon_map);
         let schema_sql = ArchitectEngine::render_sql(&arch_plan);
         fs::write(replica_dir.join("schema.sql"), schema_sql)?;
@@ -194,8 +215,14 @@ impl Orchestrator {
         colors.insert("brand-on-primary".to_string(), "#ffffff".to_string());
 
         let mut typography = HashMap::new();
-        typography.insert("font-sans".to_string(), "Inter, system-ui, sans-serif".to_string());
-        typography.insert("font-mono".to_string(), "JetBrains Mono, monospace".to_string());
+        typography.insert(
+            "font-sans".to_string(),
+            "Inter, system-ui, sans-serif".to_string(),
+        );
+        typography.insert(
+            "font-mono".to_string(),
+            "JetBrains Mono, monospace".to_string(),
+        );
 
         let mut spacing = HashMap::new();
         spacing.insert("gutter".to_string(), "1rem".to_string());
@@ -218,7 +245,12 @@ impl Orchestrator {
             },
         ];
 
-        let tokens = DesignTokens { colors, typography, spacing, pairs };
+        let tokens = DesignTokens {
+            colors,
+            typography,
+            spacing,
+            pairs,
+        };
         let tokens_json = serde_json::to_string_pretty(&tokens)?;
         fs::write(replica_dir.join("tokens.json"), tokens_json)?;
 
@@ -227,7 +259,10 @@ impl Orchestrator {
 
         let contrast_results = DesignEngine::check_tokens(&tokens);
         for res in &contrast_results {
-            println!("   -> Contrast {} on {}: {:.2}:1 (AA: {})", res.fg_color, res.bg_color, res.ratio, res.normal_aa_pass);
+            println!(
+                "   -> Contrast {} on {}: {:.2}:1 (AA: {})",
+                res.fg_color, res.bg_color, res.ratio, res.normal_aa_pass
+            );
         }
 
         // -------------------------------------------------------------
@@ -237,8 +272,10 @@ impl Orchestrator {
         let parity_report = DiffEngine::calculate_feature_parity(&features_path)?;
         let parity_md = DiffEngine::render_markdown(&parity_report);
         fs::write(replica_dir.join("parity.md"), parity_md)?;
-        println!("   -> Feature Parity: {:.1}% (Must: {}/{})",
-            parity_report.feature_score, parity_report.must_completed, parity_report.must_total);
+        println!(
+            "   -> Feature Parity: {:.1}% (Must: {}/{})",
+            parity_report.feature_score, parity_report.must_completed, parity_report.must_total
+        );
         if parity_report.overall_score < fail_under_parity {
             println!("   -> ⚠️ Notice: Parity score ({:.1}%) is below target threshold ({:.1}%) - logging remaining build backlog.",
                 parity_report.overall_score, fail_under_parity);
@@ -251,18 +288,28 @@ impl Orchestrator {
         let avoid_names = vec![target_name.to_string()];
         let avoid_domains = target_url
             .as_ref()
-            .map(|u| vec![u.replace("https://", "").replace("http://", "").trim_end_matches('/').to_string()])
+            .map(|u| {
+                vec![u
+                    .replace("https://", "")
+                    .replace("http://", "")
+                    .trim_end_matches('/')
+                    .to_string()]
+            })
             .unwrap_or_default();
         let avoid_colors = vec!["#006bff".to_string(), "#0ae8f0".to_string()];
 
-        let sweep_report = BrandEngine::sweep_codebase(ws, &avoid_names, &avoid_domains, &avoid_colors)?;
+        let sweep_report =
+            BrandEngine::sweep_codebase(ws, &avoid_names, &avoid_domains, &avoid_colors)?;
         let sweep_md = BrandEngine::render_markdown(&sweep_report);
         fs::write(replica_dir.join("cleanroom-report.md"), sweep_md)?;
 
         if sweep_report.passed {
             println!("   -> Clean-Room Audit: PASSED (Zero original brand leaks)");
         } else {
-            println!("   -> Clean-Room Audit: BLOCKED with {} violations", sweep_report.total_violations);
+            println!(
+                "   -> Clean-Room Audit: BLOCKED with {} violations",
+                sweep_report.total_violations
+            );
         }
 
         // -------------------------------------------------------------
@@ -272,17 +319,27 @@ impl Orchestrator {
         let store_meta = StoreMetadata {
             avoid: Some(avoid_names),
             app_store: Some(crate::launch::AppStoreListing {
-                name: Some(format!("{} App", target_name.chars().rev().collect::<String>())),
+                name: Some(format!(
+                    "{} App",
+                    target_name.chars().rev().collect::<String>()
+                )),
                 subtitle: Some("Fast, simple scheduling tool".to_string()),
                 promotional_text: Some("Clean calendar bookings with zero clutter".to_string()),
-                description: Some("Automate your meetings and scheduling effortlessly.".to_string()),
+                description: Some(
+                    "Automate your meetings and scheduling effortlessly.".to_string(),
+                ),
                 keywords: Some("calendar,booking,meeting,appointment,schedule".to_string()),
                 whats_new: Some("Initial release with full timezone support.".to_string()),
             }),
             google_play: Some(crate::launch::GooglePlayListing {
                 title: Some("Schedule Flow".to_string()),
-                short_description: Some("Effortless calendar booking app for modern professionals".to_string()),
-                full_description: Some("Schedule Flow enables seamless appointment booking and instant calendar sync.".to_string()),
+                short_description: Some(
+                    "Effortless calendar booking app for modern professionals".to_string(),
+                ),
+                full_description: Some(
+                    "Schedule Flow enables seamless appointment booking and instant calendar sync."
+                        .to_string(),
+                ),
             }),
         };
 

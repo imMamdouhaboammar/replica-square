@@ -18,7 +18,7 @@ pub enum NodeState {
     Idle,
     Running,
     Complete,
-    Warning,  // completed with warnings — downstream may still proceed
+    Warning, // completed with warnings — downstream may still proceed
     Failed,
     Skipped,
 }
@@ -27,11 +27,17 @@ pub enum NodeState {
 impl NodeState {
     /// Returns true if downstream edges are unblocked by this state.
     pub fn is_unblocked(&self) -> bool {
-        matches!(self, NodeState::Complete | NodeState::Warning | NodeState::Skipped)
+        matches!(
+            self,
+            NodeState::Complete | NodeState::Warning | NodeState::Skipped
+        )
     }
 
     pub fn is_terminal(&self) -> bool {
-        matches!(self, NodeState::Complete | NodeState::Warning | NodeState::Failed | NodeState::Skipped)
+        matches!(
+            self,
+            NodeState::Complete | NodeState::Warning | NodeState::Failed | NodeState::Skipped
+        )
     }
 }
 
@@ -39,8 +45,8 @@ impl NodeState {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NeuralEdge {
-    pub from: String,  // agent id
-    pub to: String,    // agent id
+    pub from: String, // agent id
+    pub to: String,   // agent id
     /// Whether a Warning signal from `from` still allows `to` to run
     pub warning_passthrough: bool,
 }
@@ -72,21 +78,62 @@ impl NeuralGraph {
     ///                       ──→ diff   ──→ sweep
     pub fn full_pipeline() -> Self {
         let edges = vec![
-            NeuralEdge { from: "recon".into(),        to: "entrepreneur".into(), warning_passthrough: true  },
-            NeuralEdge { from: "recon".into(),        to: "architect".into(),    warning_passthrough: false },
-            NeuralEdge { from: "architect".into(),    to: "design".into(),       warning_passthrough: false },
-            NeuralEdge { from: "architect".into(),    to: "diff".into(),         warning_passthrough: false },
-            NeuralEdge { from: "design".into(),       to: "sweep".into(),        warning_passthrough: true  },
-            NeuralEdge { from: "diff".into(),         to: "sweep".into(),        warning_passthrough: true  },
-            NeuralEdge { from: "sweep".into(),        to: "launch".into(),       warning_passthrough: false },
+            NeuralEdge {
+                from: "recon".into(),
+                to: "entrepreneur".into(),
+                warning_passthrough: true,
+            },
+            NeuralEdge {
+                from: "recon".into(),
+                to: "architect".into(),
+                warning_passthrough: false,
+            },
+            NeuralEdge {
+                from: "architect".into(),
+                to: "design".into(),
+                warning_passthrough: false,
+            },
+            NeuralEdge {
+                from: "architect".into(),
+                to: "diff".into(),
+                warning_passthrough: false,
+            },
+            NeuralEdge {
+                from: "design".into(),
+                to: "sweep".into(),
+                warning_passthrough: true,
+            },
+            NeuralEdge {
+                from: "diff".into(),
+                to: "sweep".into(),
+                warning_passthrough: true,
+            },
+            NeuralEdge {
+                from: "sweep".into(),
+                to: "launch".into(),
+                warning_passthrough: false,
+            },
         ];
 
-        let agents = ["recon", "entrepreneur", "architect", "design", "diff", "sweep", "launch"];
-        let node_states = agents.iter()
+        let agents = [
+            "recon",
+            "entrepreneur",
+            "architect",
+            "design",
+            "diff",
+            "sweep",
+            "launch",
+        ];
+        let node_states = agents
+            .iter()
             .map(|&a| (a.to_string(), NodeState::Idle))
             .collect();
 
-        NeuralGraph { edges, node_states, signal_log: vec![] }
+        NeuralGraph {
+            edges,
+            node_states,
+            signal_log: vec![],
+        }
     }
 
     /// Build a minimal graph for a single-agent run.
@@ -94,18 +141,23 @@ impl NeuralGraph {
         let id = kind.id().to_string();
         let mut node_states = HashMap::new();
         node_states.insert(id, NodeState::Idle);
-        NeuralGraph { edges: vec![], node_states, signal_log: vec![] }
+        NeuralGraph {
+            edges: vec![],
+            node_states,
+            signal_log: vec![],
+        }
     }
 
     /// Process an incoming signal: update node state and append to log.
     pub fn receive(&mut self, signal: NeuralSignal) {
         let new_state = match signal.event {
             SignalEvent::Complete => NodeState::Complete,
-            SignalEvent::Failed   => NodeState::Failed,
-            SignalEvent::Skipped  => NodeState::Skipped,
-            SignalEvent::Warning  => NodeState::Warning,
+            SignalEvent::Failed => NodeState::Failed,
+            SignalEvent::Skipped => NodeState::Skipped,
+            SignalEvent::Warning => NodeState::Warning,
         };
-        self.node_states.insert(signal.from_agent.clone(), new_state);
+        self.node_states
+            .insert(signal.from_agent.clone(), new_state);
         self.signal_log.push(SignalLogEntry {
             timestamp: Utc::now(),
             signal,
@@ -114,34 +166,33 @@ impl NeuralGraph {
 
     /// Mark a node as Running (called before dispatching an agent).
     pub fn mark_running(&mut self, agent_id: &str) {
-        self.node_states.insert(agent_id.to_string(), NodeState::Running);
+        self.node_states
+            .insert(agent_id.to_string(), NodeState::Running);
     }
 
     /// Returns true if all direct predecessors of `agent_id` are unblocked.
     pub fn predecessors_satisfied(&self, agent_id: &str) -> bool {
-        let required_predecessors: Vec<&NeuralEdge> = self.edges.iter()
-            .filter(|e| e.to == agent_id)
-            .collect();
+        let required_predecessors: Vec<&NeuralEdge> =
+            self.edges.iter().filter(|e| e.to == agent_id).collect();
 
         if required_predecessors.is_empty() {
             return true; // root node
         }
 
-        required_predecessors.iter().all(|edge| {
-            match self.node_states.get(&edge.from) {
+        required_predecessors
+            .iter()
+            .all(|edge| match self.node_states.get(&edge.from) {
                 Some(NodeState::Complete) | Some(NodeState::Skipped) => true,
                 Some(NodeState::Warning) => edge.warning_passthrough,
                 _ => false,
-            }
-        })
+            })
     }
 
     /// Returns all agent IDs that are ready to run (predecessors satisfied, not yet started).
     pub fn ready_agents(&self) -> Vec<String> {
-        self.node_states.iter()
-            .filter(|(id, state)| {
-                **state == NodeState::Idle && self.predecessors_satisfied(id)
-            })
+        self.node_states
+            .iter()
+            .filter(|(id, state)| **state == NodeState::Idle && self.predecessors_satisfied(id))
             .map(|(id, _)| id.clone())
             .collect()
     }
@@ -163,20 +214,37 @@ impl NeuralGraph {
         md.push_str("| Agent | State | Last Signal |\n");
         md.push_str("|-------|-------|-------------|\n");
 
-        let ordered = ["recon", "entrepreneur", "architect", "design", "diff", "sweep", "launch"];
+        let ordered = [
+            "recon",
+            "entrepreneur",
+            "architect",
+            "design",
+            "diff",
+            "sweep",
+            "launch",
+        ];
         for id in &ordered {
             if let Some(state) = self.node_states.get(*id) {
                 let icon = match state {
-                    NodeState::Idle     => "⬜",
-                    NodeState::Running  => "🔄",
+                    NodeState::Idle => "⬜",
+                    NodeState::Running => "🔄",
                     NodeState::Complete => "✅",
-                    NodeState::Warning  => "⚠️",
-                    NodeState::Failed   => "❌",
-                    NodeState::Skipped  => "⏭️",
+                    NodeState::Warning => "⚠️",
+                    NodeState::Failed => "❌",
+                    NodeState::Skipped => "⏭️",
                 };
-                let last = self.signal_log.iter().rev()
+                let last = self
+                    .signal_log
+                    .iter()
+                    .rev()
                     .find(|e| e.signal.from_agent == *id)
-                    .map(|e| format!("`{:?}` @ {}", e.signal.event, e.timestamp.format("%H:%M:%S")))
+                    .map(|e| {
+                        format!(
+                            "`{:?}` @ {}",
+                            e.signal.event,
+                            e.timestamp.format("%H:%M:%S")
+                        )
+                    })
                     .unwrap_or_else(|| "—".into());
                 md.push_str(&format!("| `{id}` | {icon} `{state:?}` | {last} |\n"));
             }
@@ -187,7 +255,11 @@ impl NeuralGraph {
         // Render edges
         md.push_str("**Connections:**\n```\n");
         for edge in &self.edges {
-            let pass = if edge.warning_passthrough { " (⚠️ passthrough)" } else { "" };
+            let pass = if edge.warning_passthrough {
+                " (⚠️ passthrough)"
+            } else {
+                ""
+            };
             md.push_str(&format!("  {} ──→ {}{}\n", edge.from, edge.to, pass));
         }
         md.push_str("```\n");
@@ -260,7 +332,15 @@ mod tests {
     fn test_completion_detection() {
         let mut g = NeuralGraph::full_pipeline();
         assert!(!g.is_complete());
-        for id in ["recon", "entrepreneur", "architect", "design", "diff", "sweep", "launch"] {
+        for id in [
+            "recon",
+            "entrepreneur",
+            "architect",
+            "design",
+            "diff",
+            "sweep",
+            "launch",
+        ] {
             g.receive(signal(id, SignalEvent::Complete));
         }
         assert!(g.is_complete());
